@@ -16,17 +16,20 @@ Based on the Photospace WordPress theme and taking advantage of the built in gal
 Then simply use the short code tag [photospace] and your done.
 
 The Photospace gallery plugin allows you to:
+
 * Upload multiple images at once
 * Easily order images via drag and drop
 * Add a title, caption and description
 
 Via the options panel you can modify:
+
 * Thumbnail number, size and shape
 * Size of the main image
 * Hover image change
 * The width of the gallery columns
 
 Some other features include:
+
 * Sharp image resizing via Smart image resizer
 * Keyboard control
 * Pagination
