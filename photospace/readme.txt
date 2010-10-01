@@ -1,6 +1,8 @@
 === Photospace ===
 Contributors: deanoakley
-Donate link: http://thriveweb.com.au/blog/photospace-wordpress-gallery-plugin/
+Author: Dean Oakley
+Author URI: http://thriveweb.com.au/
+Plugin URI: http://thriveweb.com.au/blog/photospace-wordpress-gallery-plugin/
 Tags: gallery, photography, photo, plugin, image gallery, slideshow, short code, jQuery, photospace, Galleriffic
 Requires at least: 2.5.0
 Tested up to: 2.5.0
