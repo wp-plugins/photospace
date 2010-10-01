@@ -1,4 +1,4 @@
-=== Photospace ===
+=== Photospace Gallery ===
 Contributors: deanoakley
 Author: Dean Oakley
 Author URI: http://thriveweb.com.au/
