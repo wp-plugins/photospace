@@ -1,6 +1,6 @@
 <?php
 /*
-Plugin Name: Photospace
+Plugin Name: Photospace Gallery
 Plugin URI: http://thriveweb.com.au/
 Description: A image gallery for WordPress. This theme uses a modified version of Galleriffic and Smart image resizer. 
 <a href="http://www.twospy.com/galleriffic/>galleriffic</a>
