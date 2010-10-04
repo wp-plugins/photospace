@@ -2,7 +2,7 @@
 /*
 Plugin Name: Photospace Gallery
 Plugin URI: http://thriveweb.com.au/
-Description: A image gallery for WordPress. This theme uses a modified version of Galleriffic and Smart image resizer. 
+Description: An easy to use and customise image gallery for WordPress. This plugin uses a modified version of Galleriffic and Smart image resizer. 
 <a href="http://www.twospy.com/galleriffic/>galleriffic</a>
 <a href="http://shiftingpixel.com/2008/03/03/smart-image-resizer/>Smart Image Resizer</a>
 Author: Dean Oakley
