@@ -206,9 +206,9 @@ function photospace_wp_headers() {
 		"<link rel=\"stylesheet\" type=\"text/css\" " . 
 		"href=\"$photospace_wp_plugin_path/gallery.css\" media=\"screen\" />\n";
 
-	/*$photospace_wp_script_path .= 
+	$photospace_wp_script_path .= 
 		"<script type='text/javascript' ". 
-		 "src='$photospace_wp_plugin_path/jquery-1.4.2.min.js'></script>\n"; */ 
+		 "src='$photospace_wp_plugin_path/jquery-1.4.2.min.js'></script>\n"; 
 
 	
 	$photospace_wp_script_path .= 
