@@ -7,7 +7,7 @@ Description: A image gallery for WordPress. This theme uses a modified version o
 <a href="http://shiftingpixel.com/2008/03/03/smart-image-resizer/>Smart Image Resizer</a>
 Author: Dean Oakley
 Author URI: http://deanoakley.com/
-Version: 1.0 
+Version: 1.1  
 */
 
 /*  Copyright 2010  Dean Oakley  (email : contact@deanoakley.com)
@@ -208,7 +208,7 @@ function photospace_wp_headers() {
 
 	/*$photospace_wp_script_path .= 
 		"<script type='text/javascript' ". 
-		 "src='$photospace_wp_plugin_path/jquery-1.4.2.min.js'></script>\n"; */
+		 "src='$photospace_wp_plugin_path/jquery-1.4.2.min.js'></script>\n"; */ 
 
 	
 	$photospace_wp_script_path .= 
