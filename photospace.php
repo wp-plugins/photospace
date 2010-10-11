@@ -241,7 +241,7 @@ function photospace_shortcode( $attr ) {
 	
 	$output_buffer .='
 		<style type="text/css">
-			.gallery #thumbs{
+			.gallery .navigation{
 				width:'. $options['thumb_col_width'] .'px !important;
 			}
 			
@@ -260,29 +260,29 @@ function photospace_shortcode( $attr ) {
 	
 	$output_buffer .='
 	
-		<div class="gallery_clear"></div>
-		<div class="gallery">
+		<div class="gallery_clear"></div> 
+		<div class="gallery"> 
 										
 			<!-- Start Advanced Gallery Html Containers -->
 			<div id="gallery" class="content">
 				';
 				
 				if($options['show_controls']){ 
-					$output_buffer .='<div id="controls" class="controls"></div>';
+					$output_buffer .='<div id="controls_'.$post->ID.'" class="controls"></div>';
 				}
 				
 				$output_buffer .='
 				<div class="slideshow-container">
-					<div id="loading" class="loader"></div>
-					<div id="slideshow" class="slideshow"></div>
-					<div id="caption" class="caption-container"></div>
+					<div id="loading_'.$post->ID.'" class="loader"></div>
+					<div id="slideshow_'.$post->ID.'" class="slideshow"></div>
+					<div id="caption_'.$post->ID.'" class="caption-container"></div>
 				</div>
 				
 			</div>
 											
 			
 			<!-- Start Advanced Gallery Html Containers -->				
-			<div id="thumbs" class="navigation">
+			<div id="thumbs_'.$post->ID.'" class="navigation">
 				<ul class="thumbs noscript">
 				
 				';
@@ -310,14 +310,18 @@ function photospace_shortcode( $attr ) {
 									if($options['show_captions']){ 	
 										
 										$output_buffer .='
-										<div class="image-title">' . $image_title . '</div>
+										<div class="image-title_">' . $image_title . '</div>
 										<div class="image-caption">' .  $image_caption . '</div>
 										<div class="image-desc">' .  $image_description . '</div>
 										';
 									}
+									
+									if($options['show_download']){ 		
 										$output_buffer .='
 										<div class="download"><a href="'.$img[0].'">Download Original</a></div>
 										';
+									}
+									
 								$output_buffer .='
 								</div>
 								';
@@ -355,7 +359,7 @@ function photospace_shortcode( $attr ) {
 				// Initially set opacity on thumbs and add
 				// additional styling for hover effect on thumbs
 				var onMouseOutOpacity = 0.67;
-				$('#thumbs ul.thumbs li, div.navigation a.pageLink').opacityrollover({
+				$('#thumbs_".$post->ID." ul.thumbs li, div.navigation a.pageLink').opacityrollover({
 					mouseOutOpacity:   onMouseOutOpacity,
 					mouseOverOpacity:  1.0,
 					fadeSpeed:         'fast',
@@ -363,16 +367,16 @@ function photospace_shortcode( $attr ) {
 				});	
 				
 				// Initialize Advanced Galleriffic Gallery
-				var gallery = $('#thumbs').galleriffic({
+				var gallery = $('#thumbs_".$post->ID."').galleriffic({ 
 					delay:                     3500,
 					numThumbs:                 " . $options['num_thumb'] . ",
 					preloadAhead:              " . $options['num_thumb'] . ",
 					enableTopPager:            false,
 					enableBottomPager:         false,
-					imageContainerSel:         '#slideshow',
-					controlsContainerSel:      '#controls',
-					captionContainerSel:       '#caption',  
-					loadingContainerSel:       '#loading',
+					imageContainerSel:         '#slideshow_".$post->ID."',
+					controlsContainerSel:      '#controls_".$post->ID."',
+					captionContainerSel:       '#caption_".$post->ID."',  
+					loadingContainerSel:       '#loading_".$post->ID."',
 					renderSSControls:          true,
 					renderNavControls:         true,
 					playLinkText:              '<span>Play Slideshow</span>',

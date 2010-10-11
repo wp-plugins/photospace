@@ -36,7 +36,7 @@ Some other features include:
 
 See a [demo here](http://thriveweb.com.au/blog/photospace-wordpress-gallery-plugin/ "Photospace") 
 
-== Installation ==
+== Installation == 
 
 1. Upload `/photospace/` to the `/wp-content/plugins/` directory
 2. Activate the plugin through the 'Plugins' menu in WordPress
@@ -45,6 +45,9 @@ See a [demo here](http://thriveweb.com.au/blog/photospace-wordpress-gallery-plug
 
 
 == Changelog ==
+
+= 1.2 =
+* Added support for multiple galleries on a page. Although each gallery must be generated from an individual post.
 
 = 1.1 =
 * Added controls option
