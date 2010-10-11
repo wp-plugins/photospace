@@ -962,7 +962,6 @@
 				switch(key) {
 					case 32: // space
 						gallery.next();
-						e.preventDefault();
 						break;
 					case 33: // Page Up
 						gallery.previousPage();
@@ -982,11 +981,9 @@
 						break;
 					case 37: // left arrow
 						gallery.previous();
-						e.preventDefault();
 						break;
 					case 39: // right arrow
 						gallery.next();
-						e.preventDefault();
 						break;
 				}
 			});

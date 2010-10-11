@@ -1,8 +1,8 @@
 <?php
 /*
-Plugin Name: Photospace Gallery
+Plugin Name: Photospace
 Plugin URI: http://thriveweb.com.au/
-Description: An easy to use and customise image gallery for WordPress. This plugin uses a modified version of Galleriffic and Smart image resizer. 
+Description: A image gallery for WordPress. This theme uses a modified version of Galleriffic and Smart image resizer. 
 <a href="http://www.twospy.com/galleriffic/>galleriffic</a>
 <a href="http://shiftingpixel.com/2008/03/03/smart-image-resizer/>Smart Image Resizer</a>
 Author: Dean Oakley
@@ -33,7 +33,7 @@ if(preg_match('#' . basename(__FILE__) . '#', $_SERVER['PHP_SELF'])) {
 //============================== Photospace options ========================//
 class photospace_options {
 
-	function getOptions() {
+	function PS_getOptions() {
 		$options = get_option('ps_options');
 		
 		if (!is_array($options)) {
@@ -43,6 +43,10 @@ class photospace_options {
 			$options['use_hover'] = false;
 			
 			$options['show_captions'] = false;
+			
+			$options['show_download'] = false;
+			
+			$options['show_controls'] = false;
 			
 			$options['thumbnail_width'] = 50;
 			$options['thumbnail_height'] = 50;
@@ -60,7 +64,7 @@ class photospace_options {
 
 	function update() {
 		if(isset($_POST['ps_save'])) {
-			$options = photospace_options::getOptions();
+			$options = photospace_options::PS_getOptions();
 			
 			$options['num_thumb'] = stripslashes($_POST['num_thumb']);			
 			$options['thumbnail_width'] = stripslashes($_POST['thumbnail_width']);
@@ -72,6 +76,20 @@ class photospace_options {
 			$options['main_col_height'] = stripslashes($_POST['main_col_height']);
 			
 			$options['gallery_width'] = stripslashes($_POST['gallery_width']);
+			
+			
+			
+			if ($_POST['show_controls']) {
+				$options['show_controls'] = (bool)true;
+			} else {
+				$options['show_controls'] = (bool)false;
+			} 
+			
+			if ($_POST['show_download']) {
+				$options['show_download'] = (bool)true;
+			} else {
+				$options['show_download'] = (bool)false;
+			} 
 			
 			if ($_POST['show_captions']) {
 				$options['show_captions'] = (bool)true;
@@ -88,7 +106,7 @@ class photospace_options {
 			update_option('ps_options', $options);
 
 		} else {
-			photospace_options::getOptions();
+			photospace_options::PS_getOptions();
 		}
 
 		add_menu_page('Photospace options', 'Photospace Gallery Options', 'edit_themes', basename(__FILE__), array('photospace_options', 'display'));
@@ -96,7 +114,7 @@ class photospace_options {
 	
 
 	function display() {
-		$options = photospace_options::getOptions();
+		$options = photospace_options::PS_getOptions();
 		
 		?>
 		
@@ -113,6 +131,16 @@ class photospace_options {
 				<h3>Change photo on hover?</h3>
 				<p><input name="use_hover" type="checkbox" value="checkbox" <?php if($options['use_hover']) echo "checked='checked'"; ?> /> Yes </p>
 				<br />
+				
+				<h3>Show download link</h3>
+				<p><input name="show_download" type="checkbox" value="checkbox" <?php if($options['show_download']) echo "checked='checked'"; ?> /> Yes </p>
+				<br />
+				
+				<h3>Show controls (play slide show / Next Prev image links )</h3>
+				<p><input name="show_controls" type="checkbox" value="checkbox" <?php if($options['show_controls']) echo "checked='checked'"; ?> /> Yes </p>
+				<br />
+				
+				
 				
 				<h3>Show photo info under photo </h3>
 				<p><input name="show_captions" type="checkbox" value="checkbox" <?php if($options['show_captions']) echo "checked='checked'"; ?> /> Yes </p>
@@ -153,10 +181,10 @@ class photospace_options {
 		</div>
 
 		<?php
-	}
+	} 
 }
 
-function getOption($option) {
+function PS_getOption($option) {
     global $mytheme;
     return $mytheme->option[$option];
 }
@@ -169,7 +197,7 @@ add_action('admin_menu', array('photospace_options', 'update'));
 add_action( 'wp_head', 'photospace_wp_headers', 10 );
 function photospace_wp_headers() {
 	
-	$options = photospace_options::getOptions();
+	$options = photospace_options::PS_getOptions();
 	
 	$photospace_wp_plugin_path = 
 	get_option('siteurl')."/wp-content/plugins/photospace";
@@ -178,9 +206,9 @@ function photospace_wp_headers() {
 		"<link rel=\"stylesheet\" type=\"text/css\" " . 
 		"href=\"$photospace_wp_plugin_path/gallery.css\" media=\"screen\" />\n";
 
-	$photospace_wp_script_path .= 
+	/*$photospace_wp_script_path .= 
 		"<script type='text/javascript' ". 
-		 "src='$photospace_wp_plugin_path/jquery-1.4.2.min.js'></script>\n";
+		 "src='$photospace_wp_plugin_path/jquery-1.4.2.min.js'></script>\n"; */
 
 	
 	$photospace_wp_script_path .= 
@@ -237,9 +265,13 @@ function photospace_shortcode( $attr ) {
 										
 			<!-- Start Advanced Gallery Html Containers -->
 			<div id="gallery" class="content">
+				';
 				
-				<!--<div id="controls" class="controls"></div>-->
+				if($options['show_controls']){ 
+					$output_buffer .='<div id="controls" class="controls"></div>';
+				}
 				
+				$output_buffer .='
 				<div class="slideshow-container">
 					<div id="loading" class="loader"></div>
 					<div id="slideshow" class="slideshow"></div>
@@ -271,17 +303,25 @@ function photospace_shortcode( $attr ) {
 								<img src="' . $photospace_wp_plugin_path . '/image.php?width=' . $options['thumbnail_width'] . '&amp;height=' . $options['thumbnail_height'] . '&amp;cropratio=' . $options['thumbnail_crop_ratio'] . '&amp;image=' . $img[0] . '" alt="' . $image_description . '" title="' . $image_title . '"/>
 								</a>
 								';
-								
-								if($options['show_captions']){ 	
-								
-									$output_buffer .='
-									<div class="caption">								
+
+								$output_buffer .='
+								<div class="caption">
+									';
+									if($options['show_captions']){ 	
+										
+										$output_buffer .='
 										<div class="image-title">' . $image_title . '</div>
 										<div class="image-caption">' .  $image_caption . '</div>
 										<div class="image-desc">' .  $image_description . '</div>
-									</div>
-									';
-								}
+										';
+									}
+										$output_buffer .='
+										<div class="download"><a href="'.$img[0].'">Download Original</a></div>
+										';
+								$output_buffer .='
+								</div>
+								';
+								
 								
 							$output_buffer .='
 							</li>
@@ -341,10 +381,11 @@ function photospace_shortcode( $attr ) {
 					nextLinkText:              'Next Photo &rsaquo;',
 					nextPageLinkText:          'Next &rsaquo;',
 					prevPageLinkText:          '&lsaquo; Prev',
-					enableHistory:             false,  
-					autoStart:                 false,
-					syncTransitions:           true,
-					defaultTransitionDuration: 300,
+					enableHistory:             	false,  
+					autoStart:                 	false,
+					enableKeyboardNavigation:	true,
+					syncTransitions:           	true,
+					defaultTransitionDuration: 	300,
 						
 					onSlideChange:             function(prevIndex, nextIndex) {
 						// 'this' refers to the gallery, which is an extension of $('#thumbs')
