@@ -167,7 +167,7 @@
 					caption:$caption,
 					hash:hash,
 					gallery:this,
-					index:position
+					index:position 
 				};
 
 				// Add the imageData to this gallery's array of images

@@ -7,7 +7,7 @@ Description: A image gallery for WordPress. This theme uses a modified version o
 <a href="http://shiftingpixel.com/2008/03/03/smart-image-resizer/>Smart Image Resizer</a>
 Author: Dean Oakley
 Author URI: http://deanoakley.com/
-Version: 1.2  
+Version: 1.3  
 */
 
 /*  Copyright 2010  Dean Oakley  (email : contact@deanoakley.com)
@@ -182,7 +182,7 @@ class photospace_options {
 
 		<?php
 	} 
-}
+} 
 
 function PS_getOption($option) {
     global $mytheme;
@@ -194,7 +194,10 @@ add_action('admin_menu', array('photospace_options', 'update'));
 
 
 //============================== insert HTML header tag ========================//
+wp_enqueue_script('jquery'); 
+
 add_action( 'wp_head', 'photospace_wp_headers', 10 );
+
 function photospace_wp_headers() {
 	
 	$options = photospace_options::PS_getOptions();
@@ -205,11 +208,6 @@ function photospace_wp_headers() {
 	$photospace_wp_style_path .= 
 		"<link rel=\"stylesheet\" type=\"text/css\" " . 
 		"href=\"$photospace_wp_plugin_path/gallery.css\" media=\"screen\" />\n";
-
-	$photospace_wp_script_path .= 
-		"<script type='text/javascript' ". 
-		 "src='$photospace_wp_plugin_path/jquery-1.4.2.min.js'></script>\n"; 
-
 	
 	$photospace_wp_script_path .= 
 		"<script type='text/javascript' ".
@@ -218,7 +216,6 @@ function photospace_wp_headers() {
 	$photospace_wp_script_path .= 
 		"<script type='text/javascript' ".
 		"src='$photospace_wp_plugin_path/jquery.opacityrollover.js'></script>\n";
-
 
 
 	echo "<!--	photospace [ BEGIN ] --> \n";
