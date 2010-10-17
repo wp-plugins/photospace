@@ -7,7 +7,7 @@ Description: A image gallery for WordPress. This theme uses a modified version o
 <a href="http://shiftingpixel.com/2008/03/03/smart-image-resizer/>Smart Image Resizer</a>
 Author: Dean Oakley
 Author URI: http://deanoakley.com/
-Version: 1.3  
+Version: 1.4
 */
 
 /*  Copyright 2010  Dean Oakley  (email : contact@deanoakley.com)
@@ -128,9 +128,10 @@ class photospace_options {
 				<p><input type="text" name="num_thumb" value="<?php echo($options['num_thumb']); ?>" /></p>
 				<br />				
 					
+				<!-- Too buggy			
 				<h3>Change photo on hover?</h3>
 				<p><input name="use_hover" type="checkbox" value="checkbox" <?php if($options['use_hover']) echo "checked='checked'"; ?> /> Yes </p>
-				<br />
+				<br />-->
 				
 				<h3>Show download link</h3>
 				<p><input name="show_download" type="checkbox" value="checkbox" <?php if($options['show_download']) echo "checked='checked'"; ?> /> Yes </p>
@@ -138,37 +139,54 @@ class photospace_options {
 				
 				<h3>Show controls (play slide show / Next Prev image links )</h3>
 				<p><input name="show_controls" type="checkbox" value="checkbox" <?php if($options['show_controls']) echo "checked='checked'"; ?> /> Yes </p>
-				<br />
+				<br />				
 				
-				
-				
-				<h3>Show photo info under photo </h3>
+				<h3>Show Title / Caption / Desc under image? </h3>
 				<p><input name="show_captions" type="checkbox" value="checkbox" <?php if($options['show_captions']) echo "checked='checked'"; ?> /> Yes </p>
 				<br />
 				
-				<h3>Thumbnail Width</h3>
-				<p><input type="text" name="thumbnail_width" value="<?php echo($options['thumbnail_width']); ?>" /></p>
-				<br />
+				<div style="width:25%;float:left">
 				
-				<h3>Thumbnail Height</h3>
-				<p><input type="text" name="thumbnail_height" value="<?php echo($options['thumbnail_height']); ?>" /></p>
-				<br />
+					<h3>Thumbnail Width</h3>
+					<p><input type="text" name="thumbnail_width" value="<?php echo($options['thumbnail_width']); ?>" /></p>
+	
+				</div>
 				
-				<h3>Thumbnail column width</h3>
-				<p><input type="text" name="thumb_col_width" value="<?php echo($options['thumb_col_width']); ?>" /></p>
-				<br />
+				<div style="width:25%; float:left">
 				
-				<h3>Thumbnail Crop Ratio</h3>
-				<p><input type="text" name="thumbnail_crop_ratio" value="<?php echo($options['thumbnail_crop_ratio']); ?>" /></p>
-				<br />
+					<h3>Thumbnail Height</h3>
+					<p><input type="text" name="thumbnail_height" value="<?php echo($options['thumbnail_height']); ?>" /></p>
+					
+				</div>
 				
-				<h3>Main image width</h3>
-				<p><input type="text" name="main_col_width" value="<?php echo($options['main_col_width']); ?>" /></p>
-				<br />
 				
-				<h3>Main image height</h3>
-				<p><input type="text" name="main_col_height" value="<?php echo($options['main_col_height']); ?>" /></p>
-				<br />
+				<div style="width:25%; float:left">
+				
+					<h3>Thumbnail column width</h3>
+					<p><input type="text" name="thumb_col_width" value="<?php echo($options['thumb_col_width']); ?>" /></p>
+				</div>
+				
+				<div style="width:25%; float:left">
+					<h3>Thumbnail Crop Ratio</h3>
+					<p><input type="text" name="thumbnail_crop_ratio" value="<?php echo($options['thumbnail_crop_ratio']); ?>" /></p>
+				</div>
+				
+				
+				<div style="clear:both; margin-bottom:15px;"></div>
+				
+				<div style="width:25%; float:left">
+					<h3>Main image width</h3>
+					<p><input type="text" name="main_col_width" value="<?php echo($options['main_col_width']); ?>" /></p>
+				</div>
+				
+				<div style="width:25%; float:left">
+					<h3>Main image height</h3>
+					<p><input type="text" name="main_col_height" value="<?php echo($options['main_col_height']); ?>" /></p>
+				</div>	
+				
+				<div style="clear:both; margin-bottom:15px;"></div>
+				
+				
 				
 				<h3>Gallery width</h3>
 				<p><input type="text" name="gallery_width" value="<?php echo($options['gallery_width']); ?>" /></p>
@@ -250,8 +268,17 @@ function photospace_shortcode( $attr ) {
 			
 			.gallery{
 				width:'. $options['gallery_width'] .'px !important;
+				height:'. $options['main_col_height'] .'px !important;
 			}
 			
+			div.loader {
+				height: '. $options['main_col_height'] / 2 . 'px !important;
+			}
+			
+			div.slideshow a.advance-link {
+				height:'. $options['main_col_height'] .'px !important;
+			}
+
 		</style>
 	'; 
 	
@@ -296,7 +323,7 @@ function photospace_shortcode( $attr ) {
 						$image_description = attribute_escape($_post->post_content);
 													
 						$output_buffer .='
-							<li><a class="thumb" href="' . $photospace_wp_plugin_path . '/image.php?width=' . $options['main_col_width'] . '&amp;height=420&amp;image=' . $img[0] . '" >
+							<li><a class="thumb" href="' . $photospace_wp_plugin_path . '/image.php?width=' . $options['main_col_width'] . '&amp;height=' . $options['main_col_height'] . '&amp;image=' . $img[0] . '" >
 								<img src="' . $photospace_wp_plugin_path . '/image.php?width=' . $options['thumbnail_width'] . '&amp;height=' . $options['thumbnail_height'] . '&amp;cropratio=' . $options['thumbnail_crop_ratio'] . '&amp;image=' . $img[0] . '" alt="' . $image_description . '" title="' . $image_title . '"/>
 								</a>
 								';
