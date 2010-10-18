@@ -25,8 +25,7 @@ Via the options panel you can modify:
 
 * Thumbnail number, size and shape
 * Size of the main image
-* Hover image change
-* The width of the gallery columns
+* The width of the gallery columns and the size of the main image
 
 Some other features include:
 
