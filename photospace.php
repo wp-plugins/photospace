@@ -278,6 +278,10 @@ function photospace_shortcode( $attr ) {
 			div.slideshow a.advance-link {
 				height:'. $options['main_col_height'] .'px !important;
 			}
+			
+			div.slideshow-container {
+				height:'. $options['main_col_height'] .'px !important;
+			}
 
 		</style>
 	'; 
