@@ -7,7 +7,7 @@ Description: A image gallery for WordPress. This theme uses a modified version o
 <a href="http://shiftingpixel.com/2008/03/03/smart-image-resizer/>Smart Image Resizer</a>
 Author: Dean Oakley
 Author URI: http://deanoakley.com/
-Version: 1.4.1   
+Version: 1.4.2 
 */
 
 /*  Copyright 2010  Dean Oakley  (email : contact@deanoakley.com)
@@ -124,55 +124,53 @@ class photospace_options {
 			
 			<form method="post" action="#" enctype="multipart/form-data">				
 				
-				<h3>Number of thumbnails in gallery</h3>
-				<p><input type="text" name="num_thumb" value="<?php echo($options['num_thumb']); ?>" /></p>
-				<br />				
+			
 					
 				<!-- Too buggy			
 				<h3>Change photo on hover?</h3>
 				<p><input name="use_hover" type="checkbox" value="checkbox" <?php if($options['use_hover']) echo "checked='checked'"; ?> /> Yes </p>
 				<br />-->
 				
-				<h3>Show download link</h3>
-				<p><input name="show_download" type="checkbox" value="checkbox" <?php if($options['show_download']) echo "checked='checked'"; ?> /> Yes </p>
-				<br />
+				<div class="wp-menu-separator" style="clear:both; padding-bottom:15px; border-bottom:solid 1px #e6e6e6" ></div>
 				
-				<h3>Show controls (play slide show / Next Prev image links )</h3>
-				<p><input name="show_controls" type="checkbox" value="checkbox" <?php if($options['show_controls']) echo "checked='checked'"; ?> /> Yes </p>
-				<br />				
+				<h3><input name="show_download" type="checkbox" value="checkbox" <?php if($options['show_download']) echo "checked='checked'"; ?> /> Show download link</h3>
 				
-				<h3>Show Title / Caption / Desc under image? </h3>
-				<p><input name="show_captions" type="checkbox" value="checkbox" <?php if($options['show_captions']) echo "checked='checked'"; ?> /> Yes </p>
-				<br />
 				
-				<div style="width:25%;float:left">
+				<h3><input name="show_controls" type="checkbox" value="checkbox" <?php if($options['show_controls']) echo "checked='checked'"; ?> /> Show controls (play slide show / Next Prev image links)</h3>
 				
+				
+				<h3><input name="show_captions" type="checkbox" value="checkbox" <?php if($options['show_captions']) echo "checked='checked'"; ?> /> Show Title / Caption / Desc under image? </h3>
+				
+				<div style="clear:both; padding-bottom:15px; border-bottom:solid 1px #e6e6e6" ></div>
+				
+				<div style="width:25%;float:left;">		
+					<h3>Number of thumbnails in gallery</h3>
+					<p><input type="text" name="num_thumb" value="<?php echo($options['num_thumb']); ?>" /></p>
+				</div>				
+
+				<div style="width:25%;float:left;">				
 					<h3>Thumbnail Width</h3>
 					<p><input type="text" name="thumbnail_width" value="<?php echo($options['thumbnail_width']); ?>" /></p>
-	
 				</div>
 				
-				<div style="width:25%; float:left">
-				
+				<div style="width:25%; float:left;">				
 					<h3>Thumbnail Height</h3>
 					<p><input type="text" name="thumbnail_height" value="<?php echo($options['thumbnail_height']); ?>" /></p>
-					
 				</div>
 				
-				
-				<div style="width:25%; float:left">
-				
-					<h3>Thumbnail column width</h3>
-					<p><input type="text" name="thumb_col_width" value="<?php echo($options['thumb_col_width']); ?>" /></p>
-				</div>
-				
-				<div style="width:25%; float:left">
+				<div style="width:25%; float:left;">
 					<h3>Thumbnail Crop Ratio</h3>
 					<p><input type="text" name="thumbnail_crop_ratio" value="<?php echo($options['thumbnail_crop_ratio']); ?>" /></p>
 				</div>
 				
 				
-				<div style="clear:both; margin-bottom:15px;"></div>
+				<div style="clear:both; padding-bottom:15px; border-bottom:solid 1px #e6e6e6" ></div>
+				
+				
+				<div style="width:25%; float:left;">				
+					<h3>Thumbnail column width</h3>
+					<p><input type="text" name="thumb_col_width" value="<?php echo($options['thumb_col_width']); ?>" /></p>
+				</div>				
 				
 				<div style="width:25%; float:left">
 					<h3>Main image width</h3>
@@ -182,13 +180,14 @@ class photospace_options {
 				<div style="width:25%; float:left">
 					<h3>Main image height</h3>
 					<p><input type="text" name="main_col_height" value="<?php echo($options['main_col_height']); ?>" /></p>
-				</div>	
-				
-				<div style="clear:both; margin-bottom:15px;"></div>
+				</div>
 				
 				
+				<div style="clear:both; padding-bottom:15px; border-bottom:solid 1px #e6e6e6" ></div>
 				
-				<h3>Gallery width</h3>
+				
+				
+				<h3>Gallery width (at least Thumbnail column + Main image width)</h3>
 				<p><input type="text" name="gallery_width" value="<?php echo($options['gallery_width']); ?>" /></p>
 				<br />
 			
@@ -239,22 +238,9 @@ function photospace_wp_headers() {
 	echo "<!--	photospace [ BEGIN ] --> \n";
 	echo $photospace_wp_style_path;
 	echo $photospace_wp_script_path;
-	echo "<!--	photospace [ END ] --> \n";
-}
-
-
-add_shortcode( 'photospace', 'photospace_shortcode' );
-function photospace_shortcode( $attr ) {
-	
-	global $post;
-	$id = intval($post->ID);
 	
 	$options = get_option('ps_options');
-	
-	$photospace_wp_plugin_path = 
-	get_option('siteurl')."/wp-content/plugins/photospace";
-	
-	$output_buffer .='
+	echo '
 		<style type="text/css">
 			.gallery .navigation{
 				width:'. $options['thumb_col_width'] .'px !important;
@@ -285,6 +271,21 @@ function photospace_shortcode( $attr ) {
 
 		</style>
 	'; 
+	
+	
+	echo "<!--	photospace [ END ] --> \n";
+}
+
+
+add_shortcode( 'photospace', 'photospace_shortcode' );
+function photospace_shortcode( $attr ) {
+	
+	global $post;
+	$id = intval($post->ID);
+	
+	$options = get_option('ps_options');
+	
+	$photospace_wp_plugin_path = get_option('siteurl')."/wp-content/plugins/photospace";
 	
 	$output_buffer .='
 	
