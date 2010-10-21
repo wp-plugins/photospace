@@ -213,15 +213,3 @@ div.navigation a.next {
 	background-image: url('nextPageArrow.gif');
 }
 
-gallery .navigation {
-	float:right;
-}
-
-div.content {
-	float:left;
-}
-
-ul.thumbs li {
-	margin-left:10px;
-	margin-right:0;
-}
