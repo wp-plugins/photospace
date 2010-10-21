@@ -7,7 +7,7 @@ Description: A image gallery for WordPress. This theme uses a modified version o
 <a href="http://shiftingpixel.com/2008/03/03/smart-image-resizer/>Smart Image Resizer</a>
 Author: Dean Oakley
 Author URI: http://deanoakley.com/
-Version: 1.4.2 
+Version: 1.4.3
 */
 
 /*  Copyright 2010  Dean Oakley  (email : contact@deanoakley.com)
@@ -139,12 +139,12 @@ class photospace_options {
 				<h3><input name="show_controls" type="checkbox" value="checkbox" <?php if($options['show_controls']) echo "checked='checked'"; ?> /> Show controls (play slide show / Next Prev image links)</h3>
 				
 				
-				<h3><input name="show_captions" type="checkbox" value="checkbox" <?php if($options['show_captions']) echo "checked='checked'"; ?> /> Show Title / Caption / Desc under image? </h3>
+				<h3><input name="show_captions" type="checkbox" value="checkbox" <?php if($options['show_captions']) echo "checked='checked'"; ?> /> Show Title / Caption / Desc under image</h3>
 				
 				<div style="clear:both; padding-bottom:15px; border-bottom:solid 1px #e6e6e6" ></div>
 				
 				<div style="width:25%;float:left;">		
-					<h3>Number of thumbnails in gallery</h3>
+					<h3>Number of thumbnails</h3>
 					<p><input type="text" name="num_thumb" value="<?php echo($options['num_thumb']); ?>" /></p>
 				</div>				
 
@@ -408,8 +408,8 @@ function photospace_shortcode( $attr ) {
 					loadingContainerSel:       '#loading_".$post->ID."',
 					renderSSControls:          true,
 					renderNavControls:         true,
-					playLinkText:              '<span>Play Slideshow</span>',
-					pauseLinkText:             '<span>Pause Slideshow</span>',
+					playLinkText:              'Play Slideshow',
+					pauseLinkText:             'Pause Slideshow',
 					prevLinkText:              '&lsaquo; Previous Photo',
 					nextLinkText:              'Next Photo &rsaquo;',
 					nextPageLinkText:          'Next &rsaquo;',

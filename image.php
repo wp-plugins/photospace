@@ -153,6 +153,57 @@ if (!$image)
 	exit();
 }
 
+
+
+
+/***************************/  
+/*** Fix for subdomain WP and WPMU. ***/
+
+//stackoverflow.com/questions/3761733/has-anyone-used-smart-image-resizer-on-subdomain-sites
+
+// Let's include Wordpress libraries
+
+$path  = ''; // It should be end with a trailing slash    
+if ( !defined('WP_LOAD_PATH') ) {
+
+	/** classic root path if wp-content and plugins is below wp-config.php */
+	$classic_root = dirname(dirname(dirname(dirname(__FILE__)))) . '/' ;
+	
+	if (file_exists( $classic_root . 'wp-blog-header.php') )
+		define( 'WP_LOAD_PATH', $classic_root);
+	else
+		if (file_exists( $path . 'wp-blog-header.php') )
+			define( 'WP_LOAD_PATH', $path);
+		else
+			exit("Could not find wp-blog-header.php");
+}
+
+require_once( WP_LOAD_PATH .'/wp-blog-header.php');
+
+//Define upload dir for Wordpress
+$upload_dir = wp_upload_dir();
+define('WP_IMAGE_UPLOAD_DIR', str_replace("\\","/",$upload_dir['basedir']));
+define('WP_IMAGE_UPLOAD_URL', str_replace("\\","/",$upload_dir['baseurl']));
+
+// Replace the original code to remove base URL (and upload path)
+$image = str_replace(WP_IMAGE_UPLOAD_URL,'',$_GET['image']);
+
+// Then I replace the old docRoot with the new upload path,
+// and kept the stripping of possible trailing slash off the document root
+$docRoot    = preg_replace('/\/$/', '', WP_IMAGE_UPLOAD_DIR);
+
+// Then I change the code so it uses correct upload path.
+if (!file_exists(WP_IMAGE_UPLOAD_DIR . $image))
+{
+    header('HTTP/1.1 404 Not Found');
+    echo 'Error: image does not exist: ' . WP_IMAGE_UPLOAD_DIR . $image;
+    exit();
+}
+
+/***************************/  
+
+
+/*
 // Strip the possible trailing slash off the document root
 $docRoot	= preg_replace('/\/$/', '', DOCUMENT_ROOT);
 
@@ -162,6 +213,8 @@ if (!file_exists($docRoot . $image))
 	echo 'Error: image does not exist: ' . $docRoot . $image;
 	exit();
 }
+
+*/
 
 // Get the size and MIME type of the requested image
 $size	= GetImageSize($docRoot . $image);
