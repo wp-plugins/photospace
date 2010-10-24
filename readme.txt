@@ -32,6 +32,8 @@ Some other features include:
 * Sharp image resizing via Smart image resizer
 * Keyboard control
 * Pagination
+* Supports multiple galleries (Displayed via multiple posts)
+* Supports WordPress multi-site
 
 See a [demo here](http://thriveweb.com.au/blog/photospace-wordpress-gallery-plugin/ "Photospace") 
 
@@ -45,7 +47,7 @@ See a [demo here](http://thriveweb.com.au/blog/photospace-wordpress-gallery-plug
 
 == Changelog ==
 = 1.4.3 =
-* Added - Support for subdomain WP and WPMU
+* Added - Support for WordPress multi-site
 
 = 1.4.2 =
 * Fixed - Height option properly
