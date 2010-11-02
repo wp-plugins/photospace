@@ -3,17 +3,17 @@ Contributors: deanoakley
 Author: Dean Oakley
 Author URI: http://thriveweb.com.au/ 
 Plugin URI: http://thriveweb.com.au/blog/photospace-wordpress-gallery-plugin/
-Tags: gallery, photography, photo, plugin, image gallery, slideshow, short code, jQuery, photospace, Galleriffic
+Tags: gallery, photography, photo, plugin, image, gallery, slideshow, short code, jQuery, photospace, Galleriffic
 Requires at least: 2.5.0
 Tested up to: 3.1
-Stable tag: 1.4.3 
+Stable tag: 1.5.0
 
 The Photospace plugin takes advantage of the built in features of WP by automatically adding any images attached to the post or page into the gallery.
 
 == Description ==
 
 Based on the Photospace WordPress theme and taking advantage of the built in gallery features of WordPress, the plugin automatically adds any images attached to the post or page into the gallery.
-Then simply use the short code tag [photospace] and your done.
+Then simply use the shortcode [photospace] in the post or page content and your done.
 
 The Photospace gallery plugin allows you to:
 
@@ -46,6 +46,15 @@ See a [demo here](http://thriveweb.com.au/blog/photospace-wordpress-gallery-plug
 
 
 == Changelog ==
+= 1.5.0 =
+* Now enqueing all scrips and css
+* Now using almost the default galleriffic script
+* CSS updated to reduce conflicts
+* Added thumbnail margin option
+* Added background colour option for testing
+* Removed title from the text below the image. Title is now only used as the image title.
+* Added alt text as the alt text. Makes sense right!
+
 = 1.4.3 =
 * Added - Support for WordPress multi-site
 

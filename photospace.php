@@ -2,12 +2,12 @@
 /*
 Plugin Name: Photospace
 Plugin URI: http://thriveweb.com.au/blog/photospace-wordpress-gallery-plugin/
-Description: A image gallery for WordPress. This theme uses a modified version of Galleriffic and Smart image resizer. 
+Description: A image gallery for WordPress. This plugin uses a modified version of Galleriffic and Smart image resizer. 
 <a href="http://www.twospy.com/galleriffic/>galleriffic</a>
 <a href="http://shiftingpixel.com/2008/03/03/smart-image-resizer/>Smart Image Resizer</a>
 Author: Dean Oakley
 Author URI: http://deanoakley.com/
-Version: 1.4.3
+Version: 1.5.0
 */
 
 /*  Copyright 2010  Dean Oakley  (email : contact@deanoakley.com)
@@ -48,6 +48,10 @@ class photospace_options {
 			
 			$options['show_controls'] = false;
 			
+			$options['show_bg'] = false;			
+			
+			$options['thumbnail_margin'] = 10;
+			
 			$options['thumbnail_width'] = 50;
 			$options['thumbnail_height'] = 50;
 			$options['thumbnail_crop_ratio'] = '1:1';	
@@ -66,7 +70,8 @@ class photospace_options {
 		if(isset($_POST['ps_save'])) {
 			$options = photospace_options::PS_getOptions();
 			
-			$options['num_thumb'] = stripslashes($_POST['num_thumb']);			
+			$options['num_thumb'] = stripslashes($_POST['num_thumb']);
+			$options['thumbnail_margin'] =  stripslashes($_POST['thumbnail_margin']);
 			$options['thumbnail_width'] = stripslashes($_POST['thumbnail_width']);
 			$options['thumbnail_height'] = stripslashes($_POST['thumbnail_height']);			
 			$options['thumbnail_crop_ratio'] = stripslashes($_POST['thumbnail_crop_ratio']);
@@ -76,6 +81,7 @@ class photospace_options {
 			$options['main_col_height'] = stripslashes($_POST['main_col_height']);
 			
 			$options['gallery_width'] = stripslashes($_POST['gallery_width']);
+			
 			
 			
 			
@@ -95,7 +101,15 @@ class photospace_options {
 				$options['show_captions'] = (bool)true;
 			} else {
 				$options['show_captions'] = (bool)false;
+			}
+			
+			if ($_POST['show_bg']) {
+				$options['show_bg'] = (bool)true;
+			} else {
+				$options['show_bg'] = (bool)false;
 			} 
+			
+			
 			
 			if ($_POST['use_hover']) {
 				$options['use_hover'] = (bool)true;
@@ -133,13 +147,15 @@ class photospace_options {
 				
 				<div class="wp-menu-separator" style="clear:both; padding-bottom:15px; border-bottom:solid 1px #e6e6e6" ></div>
 				
-				<h3><input name="show_download" type="checkbox" value="checkbox" <?php if($options['show_download']) echo "checked='checked'"; ?> /> Show download link</h3>
+				<h3><label><input name="show_download" type="checkbox" value="checkbox" <?php if($options['show_download']) echo "checked='checked'"; ?> /> Show download link</label></h3>			
+				
+				<h3><label><input name="show_controls" type="checkbox" value="checkbox" <?php if($options['show_controls']) echo "checked='checked'"; ?> /> Show controls (play slide show / Next Prev image links)</label></h3>			
+				
+				<h3><label><input name="show_captions" type="checkbox" value="checkbox" <?php if($options['show_captions']) echo "checked='checked'"; ?> /> Show Title / Caption / Desc under image</label></h3>
+				
+				<h3><label><input name="show_bg" type="checkbox" value="checkbox" <?php if($options['show_bg']) echo "checked='checked'"; ?> /> Show background colours for layout testing</label></h3>
 				
 				
-				<h3><input name="show_controls" type="checkbox" value="checkbox" <?php if($options['show_controls']) echo "checked='checked'"; ?> /> Show controls (play slide show / Next Prev image links)</h3>
-				
-				
-				<h3><input name="show_captions" type="checkbox" value="checkbox" <?php if($options['show_captions']) echo "checked='checked'"; ?> /> Show Title / Caption / Desc under image</h3>
 				
 				<div style="clear:both; padding-bottom:15px; border-bottom:solid 1px #e6e6e6" ></div>
 				
@@ -170,7 +186,12 @@ class photospace_options {
 				<div style="width:25%; float:left;">				
 					<h3>Thumbnail column width</h3>
 					<p><input type="text" name="thumb_col_width" value="<?php echo($options['thumb_col_width']); ?>" /></p>
-				</div>				
+				</div>
+				
+				<div style="width:25%; float:left;">				
+					<h3>Thumbnail margin</h3>
+					<p><input type="text" name="thumbnail_margin" value="<?php echo($options['thumbnail_margin']); ?>" /></p>
+				</div>					
 				
 				<div style="width:25%; float:left">
 					<h3>Main image width</h3>
@@ -211,42 +232,30 @@ add_action('admin_menu', array('photospace_options', 'update'));
 
 
 //============================== insert HTML header tag ========================//
-wp_enqueue_script('jquery'); 
+
+wp_enqueue_script('jquery');
+
+$photospace_wp_plugin_path = get_option('siteurl')."/wp-content/plugins/photospace";
+
+wp_enqueue_style( 'gallery-styles', 	$photospace_wp_plugin_path . '/gallery.css');
+wp_enqueue_script( 'galleriffic', 		$photospace_wp_plugin_path . '/jquery.galleriffic.js');
+wp_enqueue_script( 'opacityrollover', 	$photospace_wp_plugin_path . '/jquery.opacityrollover.js');
 
 add_action( 'wp_head', 'photospace_wp_headers', 10 );
 
 function photospace_wp_headers() {
 	
-	$options = photospace_options::PS_getOptions();
-	
-	$photospace_wp_plugin_path = 
-	get_option('siteurl')."/wp-content/plugins/photospace";
-	
-	$photospace_wp_style_path .= 
-		"<link rel=\"stylesheet\" type=\"text/css\" " . 
-		"href=\"$photospace_wp_plugin_path/gallery.css\" media=\"screen\" />\n";
-	
-	$photospace_wp_script_path .= 
-		"<script type='text/javascript' ".
-		"src='$photospace_wp_plugin_path/jquery.galleriffic.js'></script>\n";
-
-	$photospace_wp_script_path .= 
-		"<script type='text/javascript' ".
-		"src='$photospace_wp_plugin_path/jquery.opacityrollover.js'></script>\n";
-
-
-	echo "<!--	photospace [ BEGIN ] --> \n";
-	echo $photospace_wp_style_path;
-	echo $photospace_wp_script_path;
-	
 	$options = get_option('ps_options');
+	
+	echo "<!--	photospace [ START ] --> \n";
+	
 	echo '
 		<style type="text/css">
-			.gallery .navigation{
+			.gallery .thumnail_col{
 				width:'. $options['thumb_col_width'] .'px !important;
 			}
 			
-			.gallery .content,
+			.gallery .gal_content,
 			.gallery .loader,
 			.gallery .slideshow a.advance-link {
 				width:'. $options['main_col_width'] .'px !important;
@@ -257,24 +266,49 @@ function photospace_wp_headers() {
 				height:'. $options['main_col_height'] .'px !important;
 			}
 			
-			div.loader {
+			.gallery ul.thumbs li {
+				margin-bottom:'. $options['thumbnail_margin'] .'px !important;
+				margin-right:'. $options['thumbnail_margin'] .'px !important;
+			}
+			
+			.gallery .loader {
 				height: '. $options['main_col_height'] / 2 . 'px !important;
 			}
 			
-			div.slideshow a.advance-link {
+			.gallery .slideshow a.advance-link {
 				height:'. $options['main_col_height'] .'px !important;
 			}
 			
-			div.slideshow-container {
+			.gallery .slideshow-container {
 				height:'. $options['main_col_height'] .'px !important;
 			}
 
 		</style>
 	'; 
 	
-	
+	if($options['show_bg']){ 
+		echo '
+		<style type="text/css">
+			.gallery{
+				background-color:#fbefd7;
+			}
+			
+			.gallery .thumnail_col {
+				background-color:#e7cf9f;
+			}
+			
+			.gallery .gal_content,
+			.gallery .loader,
+			.gallery .slideshow a.advance-link {
+				background-color:#e7cf9f;
+			}
+		</style>
+		'; 
+	}
+			
 	echo "<!--	photospace [ END ] --> \n";
 }
+
 
 
 add_shortcode( 'photospace', 'photospace_shortcode' );
@@ -293,7 +327,7 @@ function photospace_shortcode( $attr ) {
 		<div class="gallery"> 
 										
 			<!-- Start Advanced Gallery Html Containers -->
-			<div id="gallery" class="content">
+			<div id="gallery" class="gal_content">
 				';
 				
 				if($options['show_controls']){ 
@@ -311,7 +345,7 @@ function photospace_shortcode( $attr ) {
 											
 			
 			<!-- Start Advanced Gallery Html Containers -->				
-			<div id="thumbs_'.$post->ID.'" class="navigation">
+			<div id="thumbs_'.$post->ID.'" class="thumnail_col">
 				<ul class="thumbs noscript">
 				
 				';
@@ -324,12 +358,13 @@ function photospace_shortcode( $attr ) {
 						$_post = & get_post( intval($id) ); 
 
 						$image_title = attribute_escape($_post->post_title);
+						$image_alttext = get_post_meta(intval($id), '_wp_attachment_image_alt', true);
 						$image_caption = attribute_escape($_post->post_excerpt);
-						$image_description = attribute_escape($_post->post_content);
+						$image_description = attribute_escape($_post->post_content);						
 													
 						$output_buffer .='
 							<li><a class="thumb" href="' . $photospace_wp_plugin_path . '/image.php?width=' . $options['main_col_width'] . '&amp;height=' . $options['main_col_height'] . '&amp;image=' . $img[0] . '" >
-								<img src="' . $photospace_wp_plugin_path . '/image.php?width=' . $options['thumbnail_width'] . '&amp;height=' . $options['thumbnail_height'] . '&amp;cropratio=' . $options['thumbnail_crop_ratio'] . '&amp;image=' . $img[0] . '" alt="' . $image_description . '" title="' . $image_title . '"/>
+								<img src="' . $photospace_wp_plugin_path . '/image.php?width=' . $options['thumbnail_width'] . '&amp;height=' . $options['thumbnail_height'] . '&amp;cropratio=' . $options['thumbnail_crop_ratio'] . '&amp;image=' . $img[0] . '" alt="' . $image_alttext . '" title="' . $image_title . '"/>
 								</a>
 								';
 
@@ -339,7 +374,6 @@ function photospace_shortcode( $attr ) {
 									if($options['show_captions']){ 	
 										
 										$output_buffer .='
-										<div class="image-title_">' . $image_title . '</div>
 										<div class="image-caption">' .  $image_caption . '</div>
 										<div class="image-desc">' .  $image_description . '</div>
 										';
@@ -365,7 +399,7 @@ function photospace_shortcode( $attr ) {
 				$output_buffer .='
 				</ul>
 					
-				<div style="clear: both;"></div>
+				<div class="gallery_clear"></div>
 				<a class="pageLink prev" style="display: none;" href="#" title="Previous Page"></a>
 				<a class="pageLink next" style="display: none;" href="#" title="Next Page"></a>
 			</div>
@@ -383,21 +417,21 @@ function photospace_shortcode( $attr ) {
 			jQuery(document).ready(function($) {
 				
 				// We only want these styles applied when javascript is enabled
-				$('div.content').css('display', 'block');
+				$('.gal_content').css('display', 'block');
 		
 				// Initially set opacity on thumbs and add
 				// additional styling for hover effect on thumbs
 				var onMouseOutOpacity = 0.67;
-				$('#thumbs_".$post->ID." ul.thumbs li, div.navigation a.pageLink').opacityrollover({
+				$('#thumbs_".$post->ID." ul.thumbs li, .thumnail_col a.pageLink').opacityrollover({
 					mouseOutOpacity:   onMouseOutOpacity,
 					mouseOverOpacity:  1.0,
 					fadeSpeed:         'fast',
 					exemptionSelector: '.selected'
 				});	
 				
-				// Initialize Advanced Galleriffic Gallery
+				// Initialize Advanced Galleriffic Gallery 
 				var gallery = $('#thumbs_".$post->ID."').galleriffic({ 
-					delay:                     3500,
+					delay:                     3500, 
 					numThumbs:                 " . $options['num_thumb'] . ",
 					preloadAhead:              " . $options['num_thumb'] . ",
 					enableTopPager:            false,

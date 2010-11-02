@@ -14,7 +14,7 @@
 
 	// Galleriffic static class
 	$.galleriffic = {
-		version: '2.0.1', 
+		version: '2.0.1',
 
 		// Strips invalid characters and any leading # characters
 		normalizeHash: function(hash) {
@@ -105,7 +105,7 @@
 
 			// Current state of the slideshow
 			isSlideshowRunning: false,
-			slideshowTimeout: undefined, 
+			slideshowTimeout: undefined,
 
 			// This function is attached to the click event of generated hyperlinks within the gallery
 			clickHandler: function(e, link) {
@@ -141,9 +141,7 @@
 			// @param {Integer} position The index within the gallery where the item shouold be added.
 			addImage: function(listItem, thumbExists, insert, position) {
 				var $li = ( typeof listItem === "string" ) ? $(listItem) : listItem;				
-				
-				var $aThumb = $li.find('a.thumb');					
-				
+				var $aThumb = $li.find('a.thumb');
 				var slideUrl = $aThumb.attr('href');
 				var title = $aThumb.attr('title');
 				var $caption = $li.find('.caption').remove();
@@ -167,7 +165,7 @@
 					caption:$caption,
 					hash:hash,
 					gallery:this,
-					index:position 
+					index:position
 				};
 
 				// Add the imageData to this gallery's array of images
@@ -208,7 +206,6 @@
 					.click(function(e) {
 						gallery.clickHandler(e, this);
 					});
-					
 
 				return this;
 			},
@@ -309,7 +306,7 @@
 					return this.preloadRecursive(this.preloadStartIndex, nextIndex);
 				}
 
-				var gallery = this; 
+				var gallery = this;
 
 				// Now check for preloadAhead count
 				var preloadCount = currentIndex - startIndex;
@@ -486,8 +483,6 @@
 			// @param {Boolean} dontPause Specifies whether to pause the slideshow.
 			// @param {Boolean} bypassHistory Specifies whether to delegate navigation to the history plugin when history is enabled.
 			gotoIndex: function(index, dontPause, bypassHistory) {
-				
-				
 				if (!dontPause)
 					this.pause();
 				
@@ -512,7 +507,7 @@
 				if (this.onSlideChange)
 					this.onSlideChange(this.currentImage.index, index);
 				
-				this.currentImage = imageData; 
+				this.currentImage = imageData;
 				this.preloadRelocate(index);
 				
 				this.refresh();
@@ -536,8 +531,6 @@
 					return this;
 
 				var index = imageData.index;
-				
-				//alert(index); 
 
 				// Update Controls
 				if (this.$controlsContainer) {
@@ -585,17 +578,7 @@
 
 				if (previousSlide.length == 0) {
 					// For the first slide, the previous slide will be empty, so we will call the callback immediately
-					
-					//Wait for ie8...?
-					if ((jQuery.browser.msie) && (jQuery.browser.version == 8)) {
-						gallery.$loadingContainer.show();
-						setTimeout(function() { transitionOutCallback(); }, 4000);
-						
-					}else{
-						transitionOutCallback();
-					}
-					
-		
+					transitionOutCallback();
 				} else {
 					if (this.onTransitionOut) {
 						this.onTransitionOut(previousSlide, previousCaption, isSync, transitionOutCallback);
@@ -722,12 +705,8 @@
 					// Transition In the thumbsContainer
 					if (gallery.onPageTransitionIn)
 						gallery.onPageTransitionIn();
-					else{
+					else
 						gallery.show();
-					}
-					
-					
-					
 				};
 
 				// Transition Out the thumbsContainer
@@ -947,13 +926,9 @@
 				initFirstImage = true;
 		}
 
-
 		// Setup gallery to show the first image
 		if (initFirstImage)
-			this.gotoIndex(0, false, true); 
-
-		
-
+			this.gotoIndex(0, false, true);
 
 		// Setup Keyboard Navigation
 		if (this.enableKeyboardNavigation) {
@@ -962,6 +937,7 @@
 				switch(key) {
 					case 32: // space
 						gallery.next();
+						//e.preventDefault(); *** photospace - don't break forms *** 
 						break;
 					case 33: // Page Up
 						gallery.previousPage();
@@ -981,13 +957,16 @@
 						break;
 					case 37: // left arrow
 						gallery.previous();
+
+						//e.preventDefault(); *** photospace - don't break forms *** 
 						break;
 					case 39: // right arrow
 						gallery.next();
+						//e.preventDefault(); *** photospace - don't break forms *** 
 						break;
 				}
 			});
-		} 
+		}
 
 		// Auto start the slideshow
 		if (this.autoStart)
