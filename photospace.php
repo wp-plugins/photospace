@@ -7,7 +7,7 @@ Description: A image gallery for WordPress. This plugin uses a modified version 
 <a href="http://shiftingpixel.com/2008/03/03/smart-image-resizer/>Smart Image Resizer</a>
 Author: Dean Oakley
 Author URI: http://deanoakley.com/
-Version: 1.5.0
+Version: 1.5.1
 */
 
 /*  Copyright 2010  Dean Oakley  (email : contact@deanoakley.com)
@@ -321,6 +321,7 @@ function photospace_shortcode( $attr ) {
 	
 	$photospace_wp_plugin_path = get_option('siteurl')."/wp-content/plugins/photospace";
 	
+	$output_buffer = '';
 	$output_buffer .='
 	
 		<div class="gallery_clear"></div> 
@@ -350,7 +351,7 @@ function photospace_shortcode( $attr ) {
 				
 				';
 					
-				$attachments = get_children("post_parent=$id&post_type=attachment&post_mime_type=image&orderby=menu_order"); 
+				$attachments = get_children("post_parent=$id&post_type=attachment&post_mime_type=image&orderby=menu_order&order=asc"); 
 			
 				if ( !empty($attachments) ) {
 					foreach ( $attachments as $id => $attachment ) {
