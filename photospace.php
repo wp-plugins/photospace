@@ -7,7 +7,7 @@ Description: A image gallery for WordPress. This plugin uses a modified version 
 <a href="http://shiftingpixel.com/2008/03/03/smart-image-resizer/>Smart Image Resizer</a>
 Author: Dean Oakley
 Author URI: http://deanoakley.com/
-Version: 1.5.2
+Version: 1.6.0
 */
 
 /*  Copyright 2010  Dean Oakley  (email : contact@deanoakley.com)
@@ -255,7 +255,7 @@ class photospace_plugin_options {
 			</form>
 	
 		</div>
-
+		
 		<?php
 	} 
 } 
@@ -389,16 +389,13 @@ function photospace_shortcode( $atts ) {
 		'auto_play' 		=> $options['auto_play'],
 		'delay' 			=> $options['delay'],
 		'hide_thumbs' 		=> $options['hide_thumbs'],
-		//'thumbnail_margin' 	=> $options['thumbnail_margin'],
+		
 		'thumbnail_width' 	=> $options['thumbnail_width'],
 		'thumbnail_height' 	=> $options['thumbnail_height'],
 		'thumbnail_crop_ratio' => $options['thumbnail_crop_ratio'],
-		//'thumb_col_width' 	=> $options['thumb_col_width'],
 		'main_col_width' 	=> $options['main_col_width'],
 		'main_col_height' 	=> $options['main_col_height'],
-		'horizontal_thumb' 	=> 0
-		
-		//'gallery_width' 	=> $options['gallery_width'] 
+		'horizontal_thumb' 	=> 0		
 	), $atts));
 	
 	if($horizontal_thumb){
@@ -539,9 +536,9 @@ function photospace_shortcode( $atts ) {
 				
 				// Initialize Advanced Galleriffic Gallery 
 				var gallery = $('#thumbs_".$id."').galleriffic({ 
-					delay:                     " . $delay . ",
-					numThumbs:                 " . $num_thumb . ",
-					preloadAhead:              " . $num_thumb . ",
+					delay:                     " . intval($delay) . ",
+					numThumbs:                 " . intval($num_thumb) . ",
+					preloadAhead:              " . intval($num_thumb) . ",
 					enableTopPager:            false,
 					enableBottomPager:         false,
 					imageContainerSel:         '#slideshow_".$id."',
