@@ -7,7 +7,7 @@ Description: A image gallery for WordPress. This plugin uses a modified version 
 <a href="http://shiftingpixel.com/2008/03/03/smart-image-resizer/>Smart Image Resizer</a>
 Author: Dean Oakley
 Author URI: http://deanoakley.com/
-Version: 1.5.1
+Version: 1.5.2
 */
 
 /*  Copyright 2010  Dean Oakley  (email : contact@deanoakley.com)
@@ -31,7 +31,7 @@ if(preg_match('#' . basename(__FILE__) . '#', $_SERVER['PHP_SELF'])) {
 }
 
 //============================== Photospace options ========================//
-class photospace_options {
+class photospace_plugin_options {
 
 	function PS_getOptions() {
 		$options = get_option('ps_options');
@@ -48,7 +48,13 @@ class photospace_options {
 			
 			$options['show_controls'] = false;
 			
-			$options['show_bg'] = false;			
+			$options['show_bg'] = false;
+			
+			$options['auto_play'] = false;			
+			$options['delay'] = 3500;
+			$options['hide_thumbs'] = false;
+			
+			$options['reset_css'] = false;
 			
 			$options['thumbnail_margin'] = 10;
 			
@@ -68,7 +74,7 @@ class photospace_options {
 
 	function update() {
 		if(isset($_POST['ps_save'])) {
-			$options = photospace_options::PS_getOptions();
+			$options = photospace_plugin_options::PS_getOptions();
 			
 			$options['num_thumb'] = stripslashes($_POST['num_thumb']);
 			$options['thumbnail_margin'] =  stripslashes($_POST['thumbnail_margin']);
@@ -82,7 +88,7 @@ class photospace_options {
 			
 			$options['gallery_width'] = stripslashes($_POST['gallery_width']);
 			
-			
+			$options['delay'] = stripslashes($_POST['delay']);
 			
 			
 			if ($_POST['show_controls']) {
@@ -108,28 +114,44 @@ class photospace_options {
 			} else {
 				$options['show_bg'] = (bool)false;
 			} 
-			
-			
-			
+					
 			if ($_POST['use_hover']) {
 				$options['use_hover'] = (bool)true;
 			} else {
 				$options['use_hover'] = (bool)false;
 			}
-
+			
+			if ($_POST['auto_play']) {
+				$options['auto_play'] = (bool)true;
+			} else {
+				$options['auto_play'] = (bool)false;
+			}
+			
+			if ($_POST['hide_thumbs']) {
+				$options['hide_thumbs'] = (bool)true;
+			} else {
+				$options['hide_thumbs'] = (bool)false;
+			}
+			
+			if ($_POST['reset_css']) {
+				$options['reset_css'] = (bool)true;
+			} else {
+				$options['reset_css'] = (bool)false;
+			}			
+			
 			update_option('ps_options', $options);
 
 		} else {
-			photospace_options::PS_getOptions();
+			photospace_plugin_options::PS_getOptions();
 		}
 
-		add_menu_page('Photospace options', 'Photospace Gallery Options', 'edit_themes', basename(__FILE__), array('photospace_options', 'display'));
+		add_menu_page('Photospace options', 'Photospace Gallery Options', 'edit_themes', basename(__FILE__), array('photospace_plugin_options', 'display'));
 	}
 	
 
 	function display() {
-		$options = photospace_options::PS_getOptions();
 		
+		$options = photospace_plugin_options::PS_getOptions();
 		?>
 		
 		<div class="wrap">
@@ -137,9 +159,7 @@ class photospace_options {
 			<h2>Photospace Options</h2>
 			
 			<form method="post" action="#" enctype="multipart/form-data">				
-				
-			
-					
+
 				<!-- Too buggy			
 				<h3>Change photo on hover?</h3>
 				<p><input name="use_hover" type="checkbox" value="checkbox" <?php if($options['use_hover']) echo "checked='checked'"; ?> /> Yes </p>
@@ -153,9 +173,27 @@ class photospace_options {
 				
 				<h3><label><input name="show_captions" type="checkbox" value="checkbox" <?php if($options['show_captions']) echo "checked='checked'"; ?> /> Show Title / Caption / Desc under image</label></h3>
 				
+				<h3><label><input name="reset_css" type="checkbox" value="checkbox" <?php if($options['reset_css']) echo "checked='checked'"; ?> /> Try to clear current theme image css / formating</label></h3>
+
+
 				<h3><label><input name="show_bg" type="checkbox" value="checkbox" <?php if($options['show_bg']) echo "checked='checked'"; ?> /> Show background colours for layout testing</label></h3>
 				
 				
+				
+				<div style="clear:both; padding-bottom:15px; border-bottom:solid 1px #e6e6e6" ></div>
+				
+				<div style="width:25%;float:left;">		
+					<h3><label><input name="auto_play" type="checkbox" value="checkbox" <?php if($options['auto_play']) echo "checked='checked'"; ?> /> Auto play slide show</label></h3>
+				</div>
+				<div style="width:25%;float:left;">		
+					<h3><label><input name="hide_thumbs" type="checkbox" value="checkbox" <?php if($options['hide_thumbs']) echo "checked='checked'"; ?> /> Hide thumbnails</label></h3>
+				</div>
+				<div style="width:25%;float:left;">		
+					<h3>Slide delay in milliseconds</h3>
+					<p><input type="text" name="delay" value="<?php echo($options['delay']); ?>" /></p>
+				</div>				
+
+
 				
 				<div style="clear:both; padding-bottom:15px; border-bottom:solid 1px #e6e6e6" ></div>
 				
@@ -228,7 +266,7 @@ function PS_getOption($option) {
 }
 
 // register functions
-add_action('admin_menu', array('photospace_options', 'update'));
+add_action('admin_menu', array('photospace_plugin_options', 'update'));
 
 
 //============================== insert HTML header tag ========================//
@@ -249,46 +287,63 @@ function photospace_wp_headers() {
 	
 	echo "<!--	photospace [ START ] --> \n";
 	
-	echo '
-		<style type="text/css">
-			.gallery .thumnail_col{
-				width:'. $options['thumb_col_width'] .'px !important;
+	echo '<style type="text/css">'; 
+	
+	if($options['reset_css']){ 
+	
+		echo '
+			/* reset */ 
+			body .gallery img,
+			body .gallery li a{
+				padding:0;
+				margin:0;
+				border:none !important;
+				background:none !important;
+				height:auto !important;
+				width:auto !important;
+			
+			}';		
+	}
+	
+	echo '	.gallery .thumnail_col{
+				width:'. $options['thumb_col_width'] .'px;
 			}
 			
 			.gallery .gal_content,
 			.gallery .loader,
-			.gallery .slideshow a.advance-link {
-				width:'. $options['main_col_width'] .'px !important;
+			.gallery .slideshow a.advance-link{
+				width:'. $options['main_col_width'] .'px;
 			}
 			
 			.gallery{
-				width:'. $options['gallery_width'] .'px !important;
-				height:'. $options['main_col_height'] .'px !important;
+				width:'. $options['gallery_width'] .'px;
+				height:'. $options['main_col_height'] .'px;
 			}
 			
+			
+			
 			.gallery ul.thumbs li {
-				margin-bottom:'. $options['thumbnail_margin'] .'px !important;
-				margin-right:'. $options['thumbnail_margin'] .'px !important;
+				margin-bottom:'. $options['thumbnail_margin'] .'px;
+				margin-right:'. $options['thumbnail_margin'] .'px;
 			}
 			
 			.gallery .loader {
-				height: '. $options['main_col_height'] / 2 . 'px !important;
+				height: '. $options['main_col_height'] / 2 . 'px;
+				width: '. $options['main_col_width'] . 'px;
 			}
 			
-			.gallery .slideshow a.advance-link {
-				height:'. $options['main_col_height'] .'px !important;
+			.gallery .slideshow a.advance-link,
+			.gallery .slideshow span.image-wrapper {
+				height:'. $options['main_col_height'] .'px;
 			}
 			
 			.gallery .slideshow-container {
-				height:'. $options['main_col_height'] .'px !important;
-			}
-
-		</style>
-	'; 
-	
+				height:'. $options['main_col_height'] .'px;
+			}';
+			
 	if($options['show_bg']){ 
+	
 		echo '
-		<style type="text/css">
 			.gallery{
 				background-color:#fbefd7;
 			}
@@ -301,10 +356,18 @@ function photospace_wp_headers() {
 			.gallery .loader,
 			.gallery .slideshow a.advance-link {
 				background-color:#e7cf9f;
+			}'; 
+	}
+	
+	if($options['hide_thumbs']){ 
+		echo '
+			.gallery .thumnail_col{
+				display:none !important;
 			}
-		</style>
 		'; 
 	}
+
+	echo '</style>'; 
 			
 	echo "<!--	photospace [ END ] --> \n";
 }
@@ -312,12 +375,42 @@ function photospace_wp_headers() {
 
 
 add_shortcode( 'photospace', 'photospace_shortcode' );
-function photospace_shortcode( $attr ) {
+function photospace_shortcode( $atts ) {
 	
 	global $post;
-	$id = intval($post->ID);
-	
 	$options = get_option('ps_options');
+	
+	extract(shortcode_atts(array(
+		'id' 				=> intval($post->ID),
+		'num_thumb' 		=> $options['num_thumb'],
+		'show_captions' 	=> $options['show_captions'],
+		'show_download' 	=> $options['show_download'],
+		'show_controls' 	=> $options['show_controls'],
+		'auto_play' 		=> $options['auto_play'],
+		'delay' 			=> $options['delay'],
+		'hide_thumbs' 		=> $options['hide_thumbs'],
+		//'thumbnail_margin' 	=> $options['thumbnail_margin'],
+		'thumbnail_width' 	=> $options['thumbnail_width'],
+		'thumbnail_height' 	=> $options['thumbnail_height'],
+		'thumbnail_crop_ratio' => $options['thumbnail_crop_ratio'],
+		//'thumb_col_width' 	=> $options['thumb_col_width'],
+		'main_col_width' 	=> $options['main_col_width'],
+		'main_col_height' 	=> $options['main_col_height'],
+		'horizontal_thumb' 	=> 0
+		
+		//'gallery_width' 	=> $options['gallery_width'] 
+	), $atts));
+	
+	if($horizontal_thumb){
+		$thumb_style_init = 'visibility:hidden';
+		$thumb_style_on  = "'visibility', 'visible'";
+		$thumb_style_off  = "'visibility', 'hidden'";
+	}
+	else{
+		$thumb_style_init = 'display:none';
+		$thumb_style_on  = "'display', 'block'";
+		$thumb_style_off  = "'display', 'none'";
+	}
 	
 	$photospace_wp_plugin_path = get_option('siteurl')."/wp-content/plugins/photospace";
 	
@@ -331,48 +424,55 @@ function photospace_shortcode( $attr ) {
 			<div id="gallery" class="gal_content">
 				';
 				
-				if($options['show_controls']){ 
-					$output_buffer .='<div id="controls_'.$post->ID.'" class="controls"></div>';
+				if($show_controls){ 
+					$output_buffer .='<div id="controls_'.$id.'" class="controls"></div>';
 				}
 				
 				$output_buffer .='
 				<div class="slideshow-container">
-					<div id="loading_'.$post->ID.'" class="loader"></div>
-					<div id="slideshow_'.$post->ID.'" class="slideshow"></div>
-					<div id="caption_'.$post->ID.'" class="caption-container"></div>
+					<div id="loading_'.$id.'" class="loader"></div>
+					<div id="slideshow_'.$id.'" class="slideshow"></div>
+					<div id="caption_'.$id.'" class="caption-container"></div>
 				</div>
 				
 			</div>
 											
 			
-			<!-- Start Advanced Gallery Html Containers -->				
-			<div id="thumbs_'.$post->ID.'" class="thumnail_col">
-				<ul class="thumbs noscript">
+			<!-- Start Advanced Gallery Html Containers -->
+			<div class="thumbs_wrap">
+			<div id="thumbs_'.$id.'" class="thumnail_col">
+				';
 				
+				if($horizontal_thumb){ 		
+						$output_buffer .='<a class="pageLink prev" style="'. $thumb_style_init . '" href="#" title="Previous Page"></a>';
+				}
+				
+				$output_buffer .='
+				<ul class="thumbs noscript">				
 				';
 					
 				$attachments = get_children("post_parent=$id&post_type=attachment&post_mime_type=image&orderby=menu_order&order=asc"); 
 			
 				if ( !empty($attachments) ) {
-					foreach ( $attachments as $id => $attachment ) {
-						$img = _wp_get_attachment_image_src( $id , ''); 
-						$_post = & get_post( intval($id) ); 
+					foreach ( $attachments as $aid => $attachment ) {
+						$img = _wp_get_attachment_image_src( $aid , ''); 
+						$_post = & get_post($aid); 
 
 						$image_title = attribute_escape($_post->post_title);
-						$image_alttext = get_post_meta(intval($id), '_wp_attachment_image_alt', true);
+						$image_alttext = get_post_meta($aid, '_wp_attachment_image_alt', true);
 						$image_caption = attribute_escape($_post->post_excerpt);
 						$image_description = attribute_escape($_post->post_content);						
 													
 						$output_buffer .='
-							<li><a class="thumb" href="' . $photospace_wp_plugin_path . '/image.php?width=' . $options['main_col_width'] . '&amp;height=' . $options['main_col_height'] . '&amp;image=' . $img[0] . '" >
-								<img src="' . $photospace_wp_plugin_path . '/image.php?width=' . $options['thumbnail_width'] . '&amp;height=' . $options['thumbnail_height'] . '&amp;cropratio=' . $options['thumbnail_crop_ratio'] . '&amp;image=' . $img[0] . '" alt="' . $image_alttext . '" title="' . $image_title . '"/>
+							<li><a class="thumb" href="' . $photospace_wp_plugin_path . '/image.php?width=' . $main_col_width . '&amp;height=' . $main_col_height . '&amp;image=' . $img[0] . '" >
+								<img src="' . $photospace_wp_plugin_path . '/image.php?width=' . $thumbnail_width . '&amp;height=' . $thumbnail_height . '&amp;cropratio=' . $thumbnail_crop_ratio . '&amp;image=' . $img[0] . '" alt="' . $image_alttext . '" title="' . $image_title . '"/>
 								</a>
 								';
 
 								$output_buffer .='
 								<div class="caption">
 									';
-									if($options['show_captions']){ 	
+									if($show_captions){ 	
 										
 										$output_buffer .='
 										<div class="image-caption">' .  $image_caption . '</div>
@@ -380,7 +480,7 @@ function photospace_shortcode( $attr ) {
 										';
 									}
 									
-									if($options['show_download']){ 		
+									if($show_download){ 		
 										$output_buffer .='
 										<div class="download"><a href="'.$img[0].'">Download Original</a></div>
 										';
@@ -398,11 +498,18 @@ function photospace_shortcode( $attr ) {
 					} 
 					
 				$output_buffer .='
-				</ul>
-					
-				<div class="gallery_clear"></div>
-				<a class="pageLink prev" style="display: none;" href="#" title="Previous Page"></a>
-				<a class="pageLink next" style="display: none;" href="#" title="Next Page"></a>
+				</ul>';
+
+				
+				if(!$horizontal_thumb){ 		
+						$output_buffer .='
+						<div class="gallery_clear"></div>
+						<a class="pageLink prev" style="'.$thumb_style_init.'" href="#" title="Previous Page"></a>';
+				}
+				
+				$output_buffer .='
+				<a class="pageLink next" style="'.$thumb_style_init.'" href="#" title="Next Page"></a>
+			</div>
 			</div>
 	
 	</div>
@@ -423,7 +530,7 @@ function photospace_shortcode( $attr ) {
 				// Initially set opacity on thumbs and add
 				// additional styling for hover effect on thumbs
 				var onMouseOutOpacity = 0.67;
-				$('#thumbs_".$post->ID." ul.thumbs li, .thumnail_col a.pageLink').opacityrollover({
+				$('#thumbs_".$id." ul.thumbs li, .thumnail_col a.pageLink').opacityrollover({
 					mouseOutOpacity:   onMouseOutOpacity,
 					mouseOverOpacity:  1.0,
 					fadeSpeed:         'fast',
@@ -431,16 +538,16 @@ function photospace_shortcode( $attr ) {
 				});	
 				
 				// Initialize Advanced Galleriffic Gallery 
-				var gallery = $('#thumbs_".$post->ID."').galleriffic({ 
-					delay:                     3500, 
-					numThumbs:                 " . $options['num_thumb'] . ",
-					preloadAhead:              " . $options['num_thumb'] . ",
+				var gallery = $('#thumbs_".$id."').galleriffic({ 
+					delay:                     " . $delay . ",
+					numThumbs:                 " . $num_thumb . ",
+					preloadAhead:              " . $num_thumb . ",
 					enableTopPager:            false,
 					enableBottomPager:         false,
-					imageContainerSel:         '#slideshow_".$post->ID."',
-					controlsContainerSel:      '#controls_".$post->ID."',
-					captionContainerSel:       '#caption_".$post->ID."',  
-					loadingContainerSel:       '#loading_".$post->ID."',
+					imageContainerSel:         '#slideshow_".$id."',
+					controlsContainerSel:      '#controls_".$id."',
+					captionContainerSel:       '#caption_".$id."',  
+					loadingContainerSel:       '#loading_".$id."',
 					renderSSControls:          true,
 					renderNavControls:         true,
 					playLinkText:              'Play Slideshow',
@@ -450,7 +557,7 @@ function photospace_shortcode( $attr ) {
 					nextPageLinkText:          'Next &rsaquo;',
 					prevPageLinkText:          '&lsaquo; Prev',
 					enableHistory:             	false,  
-					autoStart:                 	false,
+					autoStart:                 	'" . $auto_play . "',
 					enableKeyboardNavigation:	true,
 					syncTransitions:           	true,
 					defaultTransitionDuration: 	300,
@@ -468,8 +575,6 @@ function photospace_shortcode( $attr ) {
 					onTransitionIn:            function(slide, caption, isSync) {
 						var duration = this.getDefaultTransitionDuration(isSync);
 						slide.fadeTo(duration, 1.0);
-						
-						
 	
 						// Position the caption at the bottom of the image and set its opacity
 						var slideImage = slide.find('img');
@@ -487,16 +592,16 @@ function photospace_shortcode( $attr ) {
 						setTimeout(callback, 100); // wait a bit
 					},
 					onPageTransitionIn:        function() {
-						var prevPageLink = this.find('a.prev').css('display', 'none');
-						var nextPageLink = this.find('a.next').css('display', 'none');
+						var prevPageLink = this.find('a.prev').css(".$thumb_style_off.");
+						var nextPageLink = this.find('a.next').css(".$thumb_style_off.");
 						
 						// Show appropriate next / prev page links
 						if (this.displayedPage > 0)
-							prevPageLink.css('display', 'block');
+							prevPageLink.css(".$thumb_style_on.");
 		
 						var lastPage = this.getNumPages() - 1;
 						if (this.displayedPage < lastPage)
-							nextPageLink.css('display', 'block');
+							nextPageLink.css(".$thumb_style_on.");
 		
 						this.fadeTo('fast', 1.0);
 					},
@@ -511,7 +616,7 @@ function photospace_shortcode( $attr ) {
 					
 				}); ";
 				
-			if($options['use_hover']){ 		
+			if($use_hover){ 		
 		 
 				$output_buffer .= "
 					gallery.find('a.thumb').hover(function(e) {

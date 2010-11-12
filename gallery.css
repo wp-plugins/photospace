@@ -67,7 +67,11 @@
 	position: absolute;
 	top: 0;
 	left: 0;
-	line-height:0px;
+	
+	line-height:0px; /* line space in webkit */
+	font-size:0px; /* line space in webkit */
+	white-space:nowrap; /* line space in webkit */
+	letter-spacing:-1px; /* line space in webkit */
 }
 .gallery .slideshow a.advance-link {
 	display: block;
@@ -113,7 +117,6 @@
 	/* The thumnail_col style is set using jQuery so that the javascript specific styles won't be applied unless javascript is enabled. */
 }
 .gallery ul.thumbs {
-	clear: both;
 	margin: 0;
 	padding: 0;
 }
@@ -127,15 +130,12 @@
 .gallery a.thumb {
 	display: block;
 }
-.gallery ul.thumbs li.selected a.thumb {
-	background: #000;
-}
+
 .gallery a.thumb:focus {
 	outline: none;
 }
 .gallery ul.thumbs img {
-	border: none;
-	display: block;
+	display: block;	
 }
 .gallery .pagination {
 	clear: both;
