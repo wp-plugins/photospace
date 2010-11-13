@@ -7,7 +7,7 @@ Description: A image gallery for WordPress. This plugin uses a modified version 
 <a href="http://shiftingpixel.com/2008/03/03/smart-image-resizer/>Smart Image Resizer</a>
 Author: Dean Oakley
 Author URI: http://deanoakley.com/
-Version: 1.6.1
+Version: 1.6.2
 */
 
 /*  Copyright 2010  Dean Oakley  (email : contact@deanoakley.com)
@@ -301,7 +301,6 @@ function photospace_wp_headers() {
 				background:none !important;
 				height:auto !important;
 				width:auto !important; 
-			
 			}			
 			';
 	}
@@ -325,7 +324,7 @@ function photospace_wp_headers() {
 			
 			.gallery ul.thumbs li {
 				margin-bottom:'. $options['thumbnail_margin'] .'px;
-				margin-right:'. $options['thumbnail_margin'] .'px;
+				margin-right:'. $options['thumbnail_margin'] .'px; 
 			}
 			
 			.gallery .loader {
@@ -384,6 +383,7 @@ function photospace_shortcode( $atts ) {
 	extract(shortcode_atts(array(
 		'id' 				=> intval($post->ID),
 		'num_thumb' 		=> $options['num_thumb'],
+		'num_preload' 		=> $options['num_thumb'],
 		'show_captions' 	=> $options['show_captions'],
 		'show_download' 	=> $options['show_download'],
 		'show_controls' 	=> $options['show_controls'],
@@ -399,6 +399,12 @@ function photospace_shortcode( $atts ) {
 		'horizontal_thumb' 	=> 0		
 	), $atts));
 	
+	$post_id = intval($post->ID);
+
+	if($hide_thumbs){
+		$hide_thumb_style = 'display:none !important';
+	}
+	
 	if($horizontal_thumb){
 		$thumb_style_init = 'visibility:hidden';
 		$thumb_style_on  = "'visibility', 'visible'";
@@ -412,25 +418,24 @@ function photospace_shortcode( $atts ) {
 	
 	$photospace_wp_plugin_path = get_option('siteurl')."/wp-content/plugins/photospace";
 	
-	$output_buffer = '';
-	$output_buffer .='
+	$output_buffer ='
 	
 		<div class="gallery_clear"></div> 
-		<div class="gallery"> 
+		<div id="gallery_'.$post_id.'" class="gallery"> 
 										
 			<!-- Start Advanced Gallery Html Containers -->
-			<div id="gallery" class="gal_content">
+			<div class="gal_content">
 				';
 				
 				if($show_controls){ 
-					$output_buffer .='<div id="controls_'.$id.'" class="controls"></div>';
+					$output_buffer .='<div id="controls_'.$post_id.'" class="controls"></div>';
 				}
 				
 				$output_buffer .='
 				<div class="slideshow-container">
-					<div id="loading_'.$id.'" class="loader"></div>
-					<div id="slideshow_'.$id.'" class="slideshow"></div>
-					<div id="caption_'.$id.'" class="caption-container"></div>
+					<div id="loading_'.$post_id.'" class="loader"></div>
+					<div id="slideshow_'.$post_id.'" class="slideshow"></div>
+					<div id="caption_'.$post_id.'" class="caption-container"></div>
 				</div>
 				
 			</div>
@@ -438,7 +443,7 @@ function photospace_shortcode( $atts ) {
 			
 			<!-- Start Advanced Gallery Html Containers -->
 			<div class="thumbs_wrap">
-			<div id="thumbs_'.$id.'" class="thumnail_col">
+			<div id="thumbs_'.$post_id.'" class="thumnail_col" style="'. $hide_thumb_style . '" >
 				';
 				
 				if($horizontal_thumb){ 		
@@ -528,7 +533,7 @@ function photospace_shortcode( $atts ) {
 				// Initially set opacity on thumbs and add
 				// additional styling for hover effect on thumbs
 				var onMouseOutOpacity = 0.67;
-				$('#thumbs_".$id." ul.thumbs li, .thumnail_col a.pageLink').opacityrollover({
+				$('#thumbs_".$post_id." ul.thumbs li, .thumnail_col a.pageLink').opacityrollover({
 					mouseOutOpacity:   onMouseOutOpacity,
 					mouseOverOpacity:  1.0,
 					fadeSpeed:         'fast',
@@ -536,16 +541,16 @@ function photospace_shortcode( $atts ) {
 				});	
 				
 				// Initialize Advanced Galleriffic Gallery 
-				var gallery = $('#thumbs_".$id."').galleriffic({ 
+				var gallery = $('#thumbs_".$post_id."').galleriffic({ 
 					delay:                     " . intval($delay) . ",
 					numThumbs:                 " . intval($num_thumb) . ",
-					preloadAhead:              " . intval($num_thumb) . ",
+					preloadAhead:              " . intval($num_preload) . ",
 					enableTopPager:            false,
 					enableBottomPager:         false,
-					imageContainerSel:         '#slideshow_".$id."',
-					controlsContainerSel:      '#controls_".$id."',
-					captionContainerSel:       '#caption_".$id."',  
-					loadingContainerSel:       '#loading_".$id."',
+					imageContainerSel:         '#slideshow_".$post_id."',
+					controlsContainerSel:      '#controls_".$post_id."',
+					captionContainerSel:       '#caption_".$post_id."',  
+					loadingContainerSel:       '#loading_".$post_id."',
 					renderSSControls:          true,
 					renderNavControls:         true,
 					playLinkText:              'Play Slideshow',
@@ -645,7 +650,7 @@ function photospace_shortcode( $atts ) {
 		";
 		
 		return $output_buffer;
-}
+} 
 
 
 //==========================================================================//
