@@ -123,10 +123,11 @@
 .gallery ul.thumbs li {
 	float: left;
 	padding: 0;
-	margin-right:10px;
-	margin-bottom:10px;
-	list-style: none;
+	margin-right: 10px;
+	margin-bottom: 10px;
+	list-style: none  !important;
 }
+
 .gallery a.thumb {
 	display: block;
 }

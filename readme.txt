@@ -6,7 +6,7 @@ Plugin URI: http://thriveweb.com.au/blog/photospace-wordpress-gallery-plugin/
 Tags: gallery, photography, photo, plugin, image, gallery, slideshow, short code, jQuery, photospace, Galleriffic
 Requires at least: 2.5.0
 Tested up to: 3.1
-Stable tag: 1.6.0
+Stable tag: 1.6.1
 
 The Photospace plugin takes advantage of the built in features of WP by automatically adding any images attached to the post or page into the gallery.
 
@@ -46,6 +46,9 @@ See a [demo here](http://thriveweb.com.au/blog/photospace-wordpress-gallery-plug
 
 
 == Changelog ==
+= 1.6.1 =
+* CSS fix 
+
 = 1.6.0 =
 * Added short code attributes for all settings
 * Can now display images from another post or page
