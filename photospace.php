@@ -7,7 +7,7 @@ Description: A image gallery for WordPress. This plugin uses a modified version 
 <a href="http://shiftingpixel.com/2008/03/03/smart-image-resizer/>Smart Image Resizer</a>
 Author: Dean Oakley
 Author URI: http://deanoakley.com/
-Version: 1.6.2
+Version: 1.6.3
 */
 
 /*  Copyright 2010  Dean Oakley  (email : contact@deanoakley.com)
