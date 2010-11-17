@@ -450,7 +450,7 @@ function photospace_shortcode( $atts ) {
 						$output_buffer .='<a class="pageLink prev" style="'. $thumb_style_init . '" href="#" title="Previous Page"></a>';
 				}
 				
-				$output_buffer .='
+				$output_buffer .=' 
 				<ul class="thumbs noscript">				
 				';
 					
@@ -458,7 +458,8 @@ function photospace_shortcode( $atts ) {
 			
 				if ( !empty($attachments) ) {
 					foreach ( $attachments as $aid => $attachment ) {
-						$img = _wp_get_attachment_image_src( $aid , ''); 
+						$img = _wp_get_attachment_image_src( $aid , '');
+						$thumb = wp_get_attachment_thumb_url ( $aid );
 						$_post = & get_post($aid); 
 
 						$image_title = attribute_escape($_post->post_title);
@@ -467,8 +468,8 @@ function photospace_shortcode( $atts ) {
 						$image_description = attribute_escape($_post->post_content);						
 													
 						$output_buffer .='
-							<li><a class="thumb" href="' . $photospace_wp_plugin_path . '/image.php?width=' . $main_col_width . '&amp;height=' . $main_col_height . '&amp;image=' . $img[0] . '" >
-								<img src="' . $photospace_wp_plugin_path . '/image.php?width=' . $thumbnail_width . '&amp;height=' . $thumbnail_height . '&amp;cropratio=' . $thumbnail_crop_ratio . '&amp;image=' . $img[0] . '" alt="' . $image_alttext . '" title="' . $image_title . '"/>
+							<li><a class="thumb" href="' . $photospace_wp_plugin_path . '/image.php?width=' . $main_col_width . '&amp;height=' . $main_col_height . '&amp;image=' . $img[0] . '" >								
+								<img src="' . $photospace_wp_plugin_path . '/image.php?width=' . $thumbnail_width . '&amp;height=' . $thumbnail_height . '&amp;cropratio=' . $thumbnail_crop_ratio . '&amp;image=' . $thumb . '" alt="' . $image_alttext . '" title="' . $image_title . '"/>
 								</a>
 								';
 
