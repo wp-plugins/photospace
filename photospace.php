@@ -7,7 +7,7 @@ Description: A image gallery for WordPress. This plugin uses a modified version 
 <a href="http://shiftingpixel.com/2008/03/03/smart-image-resizer/>Smart Image Resizer</a>
 Author: Dean Oakley
 Author URI: http://deanoakley.com/
-Version: 1.6.3
+Version: 1.6.4
 */
 
 /*  Copyright 2010  Dean Oakley  (email : contact@deanoakley.com)
@@ -294,14 +294,22 @@ function photospace_wp_headers() {
 		echo '
 			/* reset */ 
 			body .gallery img,
-			body .gallery li a{
+			body .gallery ul.thumbs,
+			body .gallery ul.thumbs li,
+			body .gallery ul.thumbs li a{
 				padding:0;
 				margin:0;
 				border:none !important;
 				background:none !important;
 				height:auto !important;
-				width:auto !important; 
-			}			
+				width:auto !important;
+			}
+			body .gallery span{
+				padding:0; 
+				margin:0;
+				border:none !important;
+				background:none !important;
+			}
 			';
 	}
 	
@@ -323,8 +331,8 @@ function photospace_wp_headers() {
 			
 			
 			.gallery ul.thumbs li {
-				margin-bottom:'. $options['thumbnail_margin'] .'px;
-				margin-right:'. $options['thumbnail_margin'] .'px; 
+				margin-bottom:'. $options['thumbnail_margin'] .'px !important;
+				margin-right:'. $options['thumbnail_margin'] .'px !important; 
 			}
 			
 			.gallery .loader {
@@ -464,8 +472,8 @@ function photospace_shortcode( $atts ) {
 
 						$image_title = attribute_escape($_post->post_title);
 						$image_alttext = get_post_meta($aid, '_wp_attachment_image_alt', true);
-						$image_caption = attribute_escape($_post->post_excerpt);
-						$image_description = attribute_escape($_post->post_content);						
+						$image_caption = $_post->post_excerpt;
+						$image_description = $_post->post_content;						
 													
 						$output_buffer .='
 							<li><a class="thumb" href="' . $photospace_wp_plugin_path . '/image.php?width=' . $main_col_width . '&amp;height=' . $main_col_height . '&amp;image=' . $img[0] . '" >								
