@@ -7,7 +7,7 @@ Description: A image gallery for WordPress. This plugin uses a modified version 
 <a href="http://shiftingpixel.com/2008/03/03/smart-image-resizer/>Smart Image Resizer</a>
 Author: Dean Oakley
 Author URI: http://deanoakley.com/
-Version: 1.6.4
+Version: 1.6.5
 */
 
 /*  Copyright 2010  Dean Oakley  (email : contact@deanoakley.com)
@@ -410,7 +410,7 @@ function photospace_shortcode( $atts ) {
 	$post_id = intval($post->ID);
 
 	if($hide_thumbs){
-		$hide_thumb_style = 'display:none !important';
+		$hide_thumb_style = 'hide_me';
 	}
 	
 	if($horizontal_thumb){
@@ -451,7 +451,7 @@ function photospace_shortcode( $atts ) {
 			
 			<!-- Start Advanced Gallery Html Containers -->
 			<div class="thumbs_wrap">
-			<div id="thumbs_'.$post_id.'" class="thumnail_col" style="'. $hide_thumb_style . '" >
+			<div id="thumbs_'.$post_id.'" class="thumnail_col '. $hide_thumb_style . '" >
 				';
 				
 				if($horizontal_thumb){ 		

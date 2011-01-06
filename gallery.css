@@ -212,7 +212,9 @@
 	background-image: url('nextPageArrow.gif');
 }
 
-
+.gallery .hide_me{
+	display:none !important;
+}
 
 
 
