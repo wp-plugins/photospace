@@ -47,7 +47,7 @@ See a [demo here](http://thriveweb.com.au/blog/photospace-wordpress-gallery-plug
 
 == Changelog ==
 = 1.6.5 =
-* Fix for IE8 when hiding images per instance
+* Fix for IE8 when hiding thumbnails per instance
 
 = 1.6.4 =
 * Better reset
