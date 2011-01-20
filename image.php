@@ -195,9 +195,16 @@ $docRoot    = preg_replace('/\/$/', '', WP_IMAGE_UPLOAD_DIR);
 // Then I change the code so it uses correct upload path.
 if (!file_exists(WP_IMAGE_UPLOAD_DIR . $image))
 {
-    header('HTTP/1.1 404 Not Found');
-    echo 'Error: image does not exist: ' . WP_IMAGE_UPLOAD_DIR . $image;
-    exit();
+	//not working? 
+	//try original style for WP in a sub directory 
+	$image = preg_replace('/^(s?f|ht)tps?:\/\/[^\/]+/i', '', (string) $_GET['image']);
+	$docRoot = preg_replace('/\/$/', '', DOCUMENT_ROOT);
+	
+	if (!file_exists($docRoot . $image)){
+		header('HTTP/1.1 404 Not Found');
+		echo 'Error: image does not exist: ' . WP_IMAGE_UPLOAD_DIR . $image . ' or ' . $docRoot . $image;
+		exit();
+	}
 }
 
 /***************************/  
