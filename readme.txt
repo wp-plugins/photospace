@@ -33,7 +33,7 @@ Some other features include:
 * Pagination
 * Supports multiple galleries (Displayed via multiple posts)
 
-See a [demo here](http://thriveweb.com.au/blog/photospace-wordpress-gallery-plugin/ "Photospace") 
+See a [demo here](http://thriveweb.com.au/blog/wordpress-gallery-plugin-photospace-2/ "Photospace") 
 
 == Installation == 
 
