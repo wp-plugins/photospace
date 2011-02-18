@@ -211,7 +211,7 @@ class photospace_plugin_options {
 				
 				<div style="clear:both; padding-bottom:15px; border-bottom:solid 1px #e6e6e6" ></div>
 				
-
+				<h3 style="font-style:italic" >Images that are already on the server will not change size until you regenerage the thumbnails. Use <a title="http://wordpress.org/extend/plugins/ajax-thumbnail-rebuild/" href="http://wordpress.org/extend/plugins/ajax-thumbnail-rebuild/">AJAX thumbnail rebuild</a> (recommended) or <a title="http://wordpress.org/extend/plugins/regenerate-thumbnails/" href="http://wordpress.org/extend/plugins/regenerate-thumbnails/">Regenerate Thumbnails</a> (easier)</h3>
 
 				<div style="width:25%;float:left;">				
 					<h3>Thumbnail Width</h3>
@@ -233,12 +233,7 @@ class photospace_plugin_options {
 					<p><input type="text" name="thumbnail_margin" value="<?php echo($options['thumbnail_margin']); ?>" /></p>
 				</div>
 
-				
-				
 				<div style="clear:both; padding-bottom:15px; border-bottom:solid 1px #e6e6e6" ></div>
-				
-				
-				<h3>Changing the size of the images requiers the thumbnails to be rebuilt. Use </h3>	
 				
 				<div style="width:25%;float:left;">		
 					<h3>Number of thumbnails</h3>
