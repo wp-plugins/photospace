@@ -6,7 +6,7 @@ Plugin URI: http://thriveweb.com.au/blog/photospace-wordpress-gallery-plugin/
 Tags: gallery, photography, photo, plugin, image, gallery, slideshow, short code, jQuery, photospace, Galleriffic
 Requires at least: 2.5.0
 Tested up to: 3.1
-Stable tag: 1.6.6
+Stable tag: 2.0.0
 
 The Photospace plugin takes advantage of the built in features of WP by automatically adding any images attached to the post or page into the gallery.
 
@@ -29,11 +29,9 @@ Via the options panel you can modify:
 
 Some other features include:
 
-* Sharp image resizing via Smart image resizer
 * Keyboard control
 * Pagination
 * Supports multiple galleries (Displayed via multiple posts)
-* Supports WordPress multi-site
 
 See a [demo here](http://thriveweb.com.au/blog/photospace-wordpress-gallery-plugin/ "Photospace") 
 
@@ -46,6 +44,14 @@ See a [demo here](http://thriveweb.com.au/blog/photospace-wordpress-gallery-plug
 
 
 == Changelog ==
+= 2.0 =
+* Now using built in WP thumnail resizing to improve speed and reduce compatibilty problems.
+* New page button and CSS updates. 
+
+= 1.6.7 =
+* New buttons
+* Cleaned up css in header
+
 = 1.6.6 =
 * Fix in image.php for WP in a sub directory
 

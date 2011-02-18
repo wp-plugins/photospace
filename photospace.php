@@ -2,12 +2,11 @@
 /*
 Plugin Name: Photospace
 Plugin URI: http://thriveweb.com.au/blog/photospace-wordpress-gallery-plugin/
-Description: A image gallery for WordPress. This plugin uses a modified version of Galleriffic and Smart image resizer. 
+Description: A image gallery plugin for WordPress built using Galleriffic. 
 <a href="http://www.twospy.com/galleriffic/>galleriffic</a>
-<a href="http://shiftingpixel.com/2008/03/03/smart-image-resizer/>Smart Image Resizer</a>
 Author: Dean Oakley
 Author URI: http://deanoakley.com/
-Version: 1.6.6
+Version: 2.0.0
 */
 
 /*  Copyright 2010  Dean Oakley  (email : contact@deanoakley.com)
@@ -52,6 +51,9 @@ class photospace_plugin_options {
 			
 			$options['auto_play'] = false;			
 			$options['delay'] = 3500;
+			
+			$options['button_size'] = 50;
+			
 			$options['hide_thumbs'] = false;
 			
 			$options['reset_css'] = false;
@@ -60,7 +62,7 @@ class photospace_plugin_options {
 			
 			$options['thumbnail_width'] = 50;
 			$options['thumbnail_height'] = 50;
-			$options['thumbnail_crop_ratio'] = '1:1';	
+			$options['thumbnail_crop'] = true;	
 			
 			$options['thumb_col_width'] = '181';	
 			$options['main_col_width'] = '400';
@@ -80,7 +82,7 @@ class photospace_plugin_options {
 			$options['thumbnail_margin'] =  stripslashes($_POST['thumbnail_margin']);
 			$options['thumbnail_width'] = stripslashes($_POST['thumbnail_width']);
 			$options['thumbnail_height'] = stripslashes($_POST['thumbnail_height']);			
-			$options['thumbnail_crop_ratio'] = stripslashes($_POST['thumbnail_crop_ratio']);
+			
 			
 			$options['thumb_col_width'] = stripslashes($_POST['thumb_col_width']);
 			$options['main_col_width'] = stripslashes($_POST['main_col_width']);
@@ -90,6 +92,13 @@ class photospace_plugin_options {
 			
 			$options['delay'] = stripslashes($_POST['delay']);
 			
+			$options['button_size'] = stripslashes($_POST['button_size']);
+			
+			if ($_POST['thumbnail_crop']) {
+				$options['thumbnail_crop'] = (bool)true;
+			} else {
+				$options['thumbnail_crop'] = (bool)false;
+			} 
 			
 			if ($_POST['show_controls']) {
 				$options['show_controls'] = (bool)true;
@@ -191,16 +200,18 @@ class photospace_plugin_options {
 				<div style="width:25%;float:left;">		
 					<h3>Slide delay in milliseconds</h3>
 					<p><input type="text" name="delay" value="<?php echo($options['delay']); ?>" /></p>
-				</div>				
+				</div>
+				
+				<div style="width:25%;float:left;">		
+					<h3>Page button size</h3>
+					<p><input type="text" name="button_size" value="<?php echo($options['button_size']); ?>" /></p>
+				</div>					
 
 
 				
 				<div style="clear:both; padding-bottom:15px; border-bottom:solid 1px #e6e6e6" ></div>
 				
-				<div style="width:25%;float:left;">		
-					<h3>Number of thumbnails</h3>
-					<p><input type="text" name="num_thumb" value="<?php echo($options['num_thumb']); ?>" /></p>
-				</div>				
+
 
 				<div style="width:25%;float:left;">				
 					<h3>Thumbnail Width</h3>
@@ -212,15 +223,6 @@ class photospace_plugin_options {
 					<p><input type="text" name="thumbnail_height" value="<?php echo($options['thumbnail_height']); ?>" /></p>
 				</div>
 				
-				<div style="width:25%; float:left;">
-					<h3>Thumbnail Crop Ratio</h3>
-					<p><input type="text" name="thumbnail_crop_ratio" value="<?php echo($options['thumbnail_crop_ratio']); ?>" /></p>
-				</div>
-				
-				
-				<div style="clear:both; padding-bottom:15px; border-bottom:solid 1px #e6e6e6" ></div>
-				
-				
 				<div style="width:25%; float:left;">				
 					<h3>Thumbnail column width</h3>
 					<p><input type="text" name="thumb_col_width" value="<?php echo($options['thumb_col_width']); ?>" /></p>
@@ -229,6 +231,24 @@ class photospace_plugin_options {
 				<div style="width:25%; float:left;">				
 					<h3>Thumbnail margin</h3>
 					<p><input type="text" name="thumbnail_margin" value="<?php echo($options['thumbnail_margin']); ?>" /></p>
+				</div>
+
+				
+				
+				<div style="clear:both; padding-bottom:15px; border-bottom:solid 1px #e6e6e6" ></div>
+				
+				
+				<h3>Changing the size of the images requiers the thumbnails to be rebuilt. Use </h3>	
+				
+				<div style="width:25%;float:left;">		
+					<h3>Number of thumbnails</h3>
+					<p><input type="text" name="num_thumb" value="<?php echo($options['num_thumb']); ?>" /></p>
+				</div>
+				
+				<div style="width:25%; float:left;">
+					<h3>Crop thumnails</h3>
+					<h3><label><input name="thumbnail_crop" type="checkbox" value="checkbox" <?php if($options['thumbnail_crop']) echo "checked='checked'"; ?> /></label></h3>
+
 				</div>					
 				
 				<div style="width:25%; float:left">
@@ -268,6 +288,11 @@ function PS_getOption($option) {
 // register functions
 add_action('admin_menu', array('photospace_plugin_options', 'update'));
 
+$options = get_option('ps_options');
+
+add_theme_support( 'post-thumbnails' );
+add_image_size('photospace_thumbnails', $options['thumbnail_width'], $options['thumbnail_height'], $options['thumbnail_crop']);
+add_image_size('photospace_full', $options['main_col_width'], $options['main_col_height']);
 
 //============================== insert HTML header tag ========================//
 
@@ -275,7 +300,7 @@ wp_enqueue_script('jquery');
 
 $photospace_wp_plugin_path = get_option('siteurl')."/wp-content/plugins/photospace";
 
-wp_enqueue_style( 'gallery-styles', 	$photospace_wp_plugin_path . '/gallery.css');
+wp_enqueue_style( 'photospace-styles', 	$photospace_wp_plugin_path . '/gallery.css');
 wp_enqueue_script( 'galleriffic', 		$photospace_wp_plugin_path . '/jquery.galleriffic.js');
 wp_enqueue_script( 'opacityrollover', 	$photospace_wp_plugin_path . '/jquery.opacityrollover.js');
 
@@ -313,41 +338,71 @@ function photospace_wp_headers() {
 			';
 	}
 	
-	echo '	.gallery .thumnail_col{
-				width:'. $options['thumb_col_width'] .'px;
+	if(!empty($options['button_size']))
+		echo '
+			.gallery .thumnail_col a.pageLink {
+				width:'.$options['button_size'] .'px;
+				height:'.$options['button_size'] .'px;
 			}
-			
-			.gallery .gal_content,
-			.gallery .loader,
-			.gallery .slideshow a.advance-link{
-				width:'. $options['main_col_width'] .'px;
-			}
-			
-			.gallery{
-				width:'. $options['gallery_width'] .'px;
-				height:'. $options['main_col_height'] .'px;
-			}
-			
-			
-			
-			.gallery ul.thumbs li {
-				margin-bottom:'. $options['thumbnail_margin'] .'px !important;
-				margin-right:'. $options['thumbnail_margin'] .'px !important; 
-			}
-			
-			.gallery .loader {
-				height: '. $options['main_col_height'] / 2 . 'px;
-				width: '. $options['main_col_width'] . 'px;
-			}
-			
-			.gallery .slideshow a.advance-link,
-			.gallery .slideshow span.image-wrapper {
-				height:'. $options['main_col_height'] .'px;
-			}
-			
-			.gallery .slideshow-container {
-				height:'. $options['main_col_height'] .'px;
-			}';
+		';		
+	
+	if(!empty($options['thumb_col_width']))
+		echo '	.gallery .thumnail_col{
+					width:'. $options['thumb_col_width'] .'px;
+				}
+		';	
+	
+	if(!empty($options['main_col_width']))
+		echo '	.gallery .gal_content,
+				.gallery .loader,
+				.gallery .slideshow a.advance-link{
+					width:'. $options['main_col_width'] .'px;
+				}
+		';
+
+	if(!empty($options['gallery_width']))
+		echo '	.gallery{
+					width:'. $options['gallery_width'] .'px;
+				}
+		';
+		
+	if(!empty($options['main_col_height']))
+		echo '	.gallery{
+					height:'. $options['main_col_height'] .'px;
+				}
+		';
+		
+	if(!empty($options['thumbnail_margin']))
+		echo '	.gallery ul.thumbs li {
+					margin-bottom:'. $options['thumbnail_margin'] .'px !important;
+					margin-right:'. $options['thumbnail_margin'] .'px !important; 
+				}
+		';
+	
+	if(!empty($options['main_col_height']))
+		echo '	.gallery .loader {
+					height: '. $options['main_col_height'] / 2 . 'px;
+				}
+		';
+		
+	if(!empty($options['main_col_width']))
+		echo '	.gallery .loader {
+					width: '. $options['main_col_width'] . 'px;
+				}
+		';
+
+	if(!empty($options['main_col_height']))
+		echo '	.gallery .slideshow a.advance-link,
+				.gallery .slideshow span.image-wrapper {
+					height:'. $options['main_col_height'] .'px;
+				}
+		';
+		
+	if(!empty($options['main_col_height']))
+		echo '	.gallery .slideshow-container {
+					height:'. $options['main_col_height'] .'px;
+				}
+		';
 			
 	if($options['show_bg']){ 
 	
@@ -463,11 +518,14 @@ function photospace_shortcode( $atts ) {
 				';
 					
 				$attachments = get_children("post_parent=$id&post_type=attachment&post_mime_type=image&orderby=menu_order&order=asc"); 
-			
+		
+				//if ( function_exists('has_post_thumbnail') && has_post_thumbnail($post->ID) ) {
+				//	$thumbnail = wp_get_attachment_image_src( get_post_thumbnail_id($post->ID), full );
+
 				if ( !empty($attachments) ) {
 					foreach ( $attachments as $aid => $attachment ) {
-						$img = _wp_get_attachment_image_src( $aid , '');
-						$thumb = wp_get_attachment_thumb_url ( $aid );
+						$img = wp_get_attachment_image_src( $aid , 'photospace_full');
+						$thumb = wp_get_attachment_image_src( $aid , 'photospace_thumbnails');
 						$_post = & get_post($aid); 
 
 						$image_title = attribute_escape($_post->post_title);
@@ -476,8 +534,8 @@ function photospace_shortcode( $atts ) {
 						$image_description = $_post->post_content;						
 													
 						$output_buffer .='
-							<li><a class="thumb" href="' . $photospace_wp_plugin_path . '/image.php?width=' . $main_col_width . '&amp;height=' . $main_col_height . '&amp;image=' . $img[0] . '" >								
-								<img src="' . $photospace_wp_plugin_path . '/image.php?width=' . $thumbnail_width . '&amp;height=' . $thumbnail_height . '&amp;cropratio=' . $thumbnail_crop_ratio . '&amp;image=' . $thumb . '" alt="' . $image_alttext . '" title="' . $image_title . '"/>
+							<li><a class="thumb" href="' . $img[0] . '" >								
+									<img src="' . $thumb[0] . '" alt="' . $image_alttext . '" title="' . $image_title . '" />
 								</a>
 								';
 
@@ -659,78 +717,4 @@ function photospace_shortcode( $atts ) {
 		";
 		
 		return $output_buffer;
-} 
-
-
-//==========================================================================//
-//  following three functions are minor modification version of             //
-//  the "/wp-include/media.php"                                             //
-//==========================================================================//
-function _wp_get_attachment_image( $attachment_id, 
-								   $size='thumbnail', 
-								   $icon = false ) {
-	$html = '';
-	$image = _wp_get_attachment_image_src($attachment_id, $size, $icon);
-	if ( $image ) {
-		list($src, $width, $height) = $image;
-		$hwstring = image_hwstring($width, $height);
-		if ( is_array($size) )
-			$size = join('x', $size);
-		$html = '<img src="'.attribute_escape($src).'" 
-				'.$hwstring.'class="attachment-'.attribute_escape($size).'" alt="" />';
-	}
-	return $html;
 }
-
-function _wp_get_attachment_image_src( $attachment_id, 
-									   $size='thumbnail', 
-									   $icon = false ) {
-	// get a thumbnail or intermediate image if there is one
-	if ( $image = _image_downsize($attachment_id, $size) )
-		return $image;
-	if ( $icon && $src = wp_mime_type_icon($attachment_id) ) {
-		$icon_dir = 
-			apply_filters( 'icon_dir', ABSPATH . WPINC . '/images/crystal' );
-		$src_file = $icon_dir . '/' . basename($src);
-		@list($width, $height) = getimagesize($src_file);
-	}
-	if ( $src && $width && $height )
-		return array( $src, $width, $height );
-	return false;
-}
-
-function _image_downsize($id, $size = 'medium') {
-	if ( !wp_attachment_is_image($id) )
-		return false;
-	$img_url = wp_get_attachment_url($id);
-	$meta = wp_get_attachment_metadata($id);
-	$width = $height = 0;
-	// plugins can use this to provide resize services
-	if ( $out = apply_filters('_image_downsize', false, $id, $size) )
-		return $out;
-	// try for a new style intermediate size
-	if ( $intermediate = image_get_intermediate_size($id, $size) ) {
-		$img_url = str_replace(basename($img_url), $intermediate['file'], $img_url);
-		$width = $intermediate['width'];
-		$height = $intermediate['height'];
-	}
-	elseif ( $size == 'thumbnail' ) {
-		// fall back to the old thumbnail
-		$thumb_file = wp_get_attachment_thumb_file( $id ); // modified by Y2
-		if ( $info = getimagesize($thumb_file) ) {		   // 
-			$img_url = str_replace(basename($img_url), basename($thumb_file), $img_url);
-			$width = $info[0];
-			$height = $info[1];
-		}
-	}
-	if ( !$width && !$height && isset($meta['width'], $meta['height']) ) {
-		// any other type: use the real image and constrain it
-		list( $width, $height ) = 
-			 image_constrain_size_for_editor( $meta['width'], 
-											  $meta['height'], $size );
-	}
-	if ( $img_url)
-		return array( $img_url, $width, $height );
-	return false;
-}
-

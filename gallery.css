@@ -124,10 +124,12 @@
 .gallery ul.thumbs {
 	margin: 0;
 	padding: 0;
+	list-style: none  !important;
 }
 .gallery ul.thumbs li {
 	float: left;
 	padding: 0;
+	margin: 0;
 	margin-right: 10px;
 	margin-bottom: 10px;
 	list-style: none  !important;
@@ -135,6 +137,9 @@
 
 .gallery a.thumb {
 	display: block;
+	height:auto;
+	padding: 0;
+	margin: 0;
 }
 
 .gallery a.thumb:focus {
@@ -187,37 +192,29 @@
 }
 
 .gallery .thumnail_col a.pageLink {
-	height: 70px;
-	line-height: 70px;
-}
-
-.gallery .thumnail_col a.pageLink {
+	height: 50px;
+	line-height: 50px;
+	background-color:#FFF;
+	
 	display: block;
 	position: relative;
 	float: left;
-	width: 45px;
-	height:45px;
 	background-position:center center;
 	background-repeat:no-repeat;
 	margin-right:10px;
+	border:solid 1px #CCC;
 }
 .gallery .thumnail_col a.pageLink:focus {
 	outline: none;
 }
 
 .gallery .thumnail_col a.prev {
-	background-image: url('prevPageArrow.gif');
+	background-image: url('arrow-left.png');
 }
 .gallery .thumnail_col a.next {
-	background-image: url('nextPageArrow.gif');
+	background-image: url('arrow-right.png');
 }
 
 .gallery .hide_me{
 	display:none !important;
 }
-
-
-
-
-			
-			
