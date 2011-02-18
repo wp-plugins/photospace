@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: Photospace
-Plugin URI: http://thriveweb.com.au/blog/photospace-wordpress-gallery-plugin/
+Plugin URI: http://thriveweb.com.au/blog/wordpress-gallery-plugin-photospace-2/
 Description: A image gallery plugin for WordPress built using Galleriffic. 
 <a href="http://www.twospy.com/galleriffic/>galleriffic</a>
 Author: Dean Oakley
