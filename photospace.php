@@ -594,7 +594,7 @@ function photospace_shortcode( $atts ) {
 					delay:                     " . intval($delay) . ",
 					numThumbs:                 " . intval($num_thumb) . ",
 					preloadAhead:              " . intval($num_preload) . ",
-					enableTopPager:            true,
+					enableTopPager:            false,
 					enableBottomPager:         false,
 					imageContainerSel:         '#slideshow_".$post_id."',
 					controlsContainerSel:      '#controls_".$post_id."',
