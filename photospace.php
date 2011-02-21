@@ -6,7 +6,7 @@ Description: A image gallery plugin for WordPress built using Galleriffic.
 <a href="http://www.twospy.com/galleriffic/>galleriffic</a>
 Author: Dean Oakley
 Author URI: http://deanoakley.com/
-Version: 2.0.1
+Version: 2.0.2 
 */
 
 /*  Copyright 2010  Dean Oakley  (email : contact@deanoakley.com)
@@ -491,6 +491,7 @@ function photospace_shortcode( $atts ) {
 						foreach ( $attachments as $aid => $attachment ) {
 							$img = wp_get_attachment_image_src( $aid , 'photospace_full');
 							$thumb = wp_get_attachment_image_src( $aid , 'photospace_thumbnails');
+							$full = wp_get_attachment_image_src( $aid );
 							$_post = & get_post($aid); 
 	
 							$image_title = attribute_escape($_post->post_title);
@@ -517,7 +518,7 @@ function photospace_shortcode( $atts ) {
 										
 										if($show_download){ 		
 											$output_buffer .='
-											<div class="download"><a href="'.$img[0].'">Download Original</a></div>
+											<div class="download"><a href="'.$full[0].'">Download Original</a></div>
 											';
 										}
 										
