@@ -223,15 +223,17 @@ class photospace_plugin_options {
 					<p><input type="text" name="thumbnail_height" value="<?php echo($options['thumbnail_height']); ?>" /></p>
 				</div>
 				
-				<div style="width:25%; float:left;">				
-					<h3>Thumbnail column width</h3>
-					<p><input type="text" name="thumb_col_width" value="<?php echo($options['thumb_col_width']); ?>" /></p>
+				<div style="width:25%; float:left">
+					<h3>Main image width</h3>
+					<p><input type="text" name="main_col_width" value="<?php echo($options['main_col_width']); ?>" /></p>
 				</div>
 				
-				<div style="width:25%; float:left;">				
-					<h3>Thumbnail margin</h3>
-					<p><input type="text" name="thumbnail_margin" value="<?php echo($options['thumbnail_margin']); ?>" /></p>
+				<div style="width:25%; float:left">
+					<h3>Main image height</h3>
+					<p><input type="text" name="main_col_height" value="<?php echo($options['main_col_height']); ?>" /></p>
 				</div>
+				
+
 
 				<div style="clear:both; padding-bottom:15px; border-bottom:solid 1px #e6e6e6" ></div>
 				
@@ -246,14 +248,14 @@ class photospace_plugin_options {
 
 				</div>					
 				
-				<div style="width:25%; float:left">
-					<h3>Main image width</h3>
-					<p><input type="text" name="main_col_width" value="<?php echo($options['main_col_width']); ?>" /></p>
+				<div style="width:25%; float:left;">				
+					<h3>Thumbnail column width</h3>
+					<p><input type="text" name="thumb_col_width" value="<?php echo($options['thumb_col_width']); ?>" /></p>
 				</div>
 				
-				<div style="width:25%; float:left">
-					<h3>Main image height</h3>
-					<p><input type="text" name="main_col_height" value="<?php echo($options['main_col_height']); ?>" /></p>
+				<div style="width:25%; float:left;">				
+					<h3>Thumbnail margin</h3>
+					<p><input type="text" name="thumbnail_margin" value="<?php echo($options['thumbnail_margin']); ?>" /></p>
 				</div>
 				
 				
