@@ -6,7 +6,7 @@ Description: A image gallery plugin for WordPress built using Galleriffic.
 <a href="http://www.twospy.com/galleriffic/>galleriffic</a>
 Author: Dean Oakley
 Author URI: http://deanoakley.com/
-Version: 2.0.3
+Version: 2.0.4
 */
 
 /*  Copyright 2010  Dean Oakley  (email : contact@deanoakley.com)
@@ -472,81 +472,83 @@ function photospace_shortcode( $atts ) {
 		<div id="gallery_'.$post_id.'" class="gallery"> 
 	
 			<!-- Start Advanced Gallery Html Containers -->
-			<div class="thumbs_wrap">
-				<div id="thumbs_'.$post_id.'" class="thumnail_col '. $hide_thumb_style . '" >
-					';
-					
-					if($horizontal_thumb){ 		
-							$output_buffer .='<a class="pageLink prev" style="'. $thumb_style_init . '" href="#" title="Previous Page"></a>';
-					}
-					
-					$output_buffer .=' 
-					<ul class="thumbs noscript">				
-					';
+			<div class="thumbs_wrap2">
+				<div class="thumbs_wrap">
+					<div id="thumbs_'.$post_id.'" class="thumnail_col '. $hide_thumb_style . '" >
+						';
 						
-					$attachments = get_children("post_parent=$id&post_type=attachment&post_mime_type=image&orderby=menu_order&order=asc"); 
-			
-					//if ( function_exists('has_post_thumbnail') && has_post_thumbnail($post->ID) ) {
-					//	$thumbnail = wp_get_attachment_image_src( get_post_thumbnail_id($post->ID), full );
-	
-					if ( !empty($attachments) ) {
-						foreach ( $attachments as $aid => $attachment ) {
-							$img = wp_get_attachment_image_src( $aid , 'photospace_full');
-							$thumb = wp_get_attachment_image_src( $aid , 'photospace_thumbnails');
-							$full = wp_get_attachment_image_src( $aid , 'full');
-							$_post = & get_post($aid); 
-	
-							$image_title = attribute_escape($_post->post_title);
-							$image_alttext = get_post_meta($aid, '_wp_attachment_image_alt', true);
-							$image_caption = $_post->post_excerpt;
-							$image_description = $_post->post_content;						
-														
-							$output_buffer .='
-								<li><a class="thumb" href="' . $img[0] . '" >								
-										<img src="' . $thumb[0] . '" alt="' . $image_alttext . '" title="' . $image_title . '" />
-									</a>
-									';
-	
-									$output_buffer .='
-									<div class="caption">
-										';
-										if($show_captions){ 	
-											
-											$output_buffer .='
-											<div class="image-caption">' .  $image_caption . '</div>
-											<div class="image-desc">' .  $image_description . '</div>
-											';
-										}
-										
-										if($show_download){ 		
-											$output_buffer .='
-											<div class="download"><a href="'.$full[0].'">Download Original</a></div>
-											';
-										}
-										
-									$output_buffer .='
-									</div>
-									';
-									
-									
+						if($horizontal_thumb){ 		
+								$output_buffer .='<a class="pageLink prev" style="'. $thumb_style_init . '" href="#" title="Previous Page"></a>';
+						}
+						
+						$output_buffer .=' 
+						<ul class="thumbs noscript">				
+						';
+							
+						$attachments = get_children("post_parent=$id&post_type=attachment&post_mime_type=image&orderby=menu_order&order=asc"); 
+				
+						//if ( function_exists('has_post_thumbnail') && has_post_thumbnail($post->ID) ) {
+						//	$thumbnail = wp_get_attachment_image_src( get_post_thumbnail_id($post->ID), full );
+		
+						if ( !empty($attachments) ) {
+							foreach ( $attachments as $aid => $attachment ) {
+								$img = wp_get_attachment_image_src( $aid , 'photospace_full');
+								$thumb = wp_get_attachment_image_src( $aid , 'photospace_thumbnails');
+								$full = wp_get_attachment_image_src( $aid , 'full');
+								$_post = & get_post($aid); 
+		
+								$image_title = attribute_escape($_post->post_title);
+								$image_alttext = get_post_meta($aid, '_wp_attachment_image_alt', true);
+								$image_caption = $_post->post_excerpt;
+								$image_description = $_post->post_content;						
+															
 								$output_buffer .='
-								</li>
-							';
+									<li><a class="thumb" href="' . $img[0] . '" >								
+											<img src="' . $thumb[0] . '" alt="' . $image_alttext . '" title="' . $image_title . '" />
+										</a>
+										';
+		
+										$output_buffer .='
+										<div class="caption">
+											';
+											if($show_captions){ 	
+												
+												$output_buffer .='
+												<div class="image-caption">' .  $image_caption . '</div>
+												<div class="image-desc">' .  $image_description . '</div>
+												';
+											}
+											
+											if($show_download){ 		
+												$output_buffer .='
+												<div class="download"><a href="'.$full[0].'">Download Original</a></div>
+												';
+											}
+											
+										$output_buffer .='
+										</div>
+										';
+										
+										
+									$output_buffer .='
+									</li>
+								';
+								} 
 							} 
-						} 
+							
+						$output_buffer .='
+						</ul>';
+		
 						
-					$output_buffer .='
-					</ul>';
-	
-					
-					if(!$horizontal_thumb){ 		
-							$output_buffer .='
-							<div class="gallery_clear"></div>
-							<a class="pageLink prev" style="'.$thumb_style_init.'" href="#" title="Previous Page"></a>';
-					}
-					
-					$output_buffer .='
-					<a class="pageLink next" style="'.$thumb_style_init.'" href="#" title="Next Page"></a>
+						if(!$horizontal_thumb){ 		
+								$output_buffer .='
+								<div class="gallery_clear"></div>
+								<a class="pageLink prev" style="'.$thumb_style_init.'" href="#" title="Previous Page"></a>';
+						}
+						
+						$output_buffer .='
+						<a class="pageLink next" style="'.$thumb_style_init.'" href="#" title="Next Page"></a>
+					</div>
 				</div>
 			</div>
 			
