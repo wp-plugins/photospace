@@ -6,7 +6,7 @@ Description: A image gallery plugin for WordPress built using Galleriffic.
 <a href="http://www.twospy.com/galleriffic/>galleriffic</a>
 Author: Dean Oakley
 Author URI: http://deanoakley.com/
-Version: 2.0.4
+Version: 2.1.0
 */
 
 /*  Copyright 2010  Dean Oakley  (email : contact@deanoakley.com)
@@ -36,7 +36,11 @@ class photospace_plugin_options {
 		$options = get_option('ps_options');
 		
 		if (!is_array($options)) {
-									
+			
+			$options['use_paging'] = false;
+			
+			$options['enable_history'] = false;
+			
 			$options['num_thumb'] = '9';
 			
 			$options['use_hover'] = false;
@@ -93,6 +97,18 @@ class photospace_plugin_options {
 			$options['delay'] = stripslashes($_POST['delay']);
 			
 			$options['button_size'] = stripslashes($_POST['button_size']);
+
+			if ($_POST['enable_history']) {
+				$options['enable_history'] = (bool)true;
+			} else {
+				$options['enable_history'] = (bool)false;
+			} 
+			
+			if ($_POST['use_paging']) {
+				$options['use_paging'] = (bool)true;
+			} else {
+				$options['use_paging'] = (bool)false;
+			} 
 			
 			if ($_POST['thumbnail_crop']) {
 				$options['thumbnail_crop'] = (bool)true;
@@ -180,6 +196,11 @@ class photospace_plugin_options {
 				
 				<h3><label><input name="show_controls" type="checkbox" value="checkbox" <?php if($options['show_controls']) echo "checked='checked'"; ?> /> Show controls (play slide show / Next Prev image links)</label></h3>			
 				
+				<h3><label><input name="use_paging" type="checkbox" value="checkbox" <?php if($options['use_paging']) echo "checked='checked'"; ?> /> Use paging </label></h3>			
+				
+				<h3><label><input name="enable_history" type="checkbox" value="checkbox" <?php if($options['enable_history']) echo "checked='checked'"; ?> /> Enable history </label></h3>			
+				
+				
 				<h3><label><input name="show_captions" type="checkbox" value="checkbox" <?php if($options['show_captions']) echo "checked='checked'"; ?> /> Show Title / Caption / Desc under image</label></h3>
 				
 				<h3><label><input name="reset_css" type="checkbox" value="checkbox" <?php if($options['reset_css']) echo "checked='checked'"; ?> /> Try to clear current theme image css / formating</label></h3>
@@ -205,7 +226,7 @@ class photospace_plugin_options {
 				<div style="width:25%;float:left;">		
 					<h3>Page button size</h3>
 					<p><input type="text" name="button_size" value="<?php echo($options['button_size']); ?>" /></p>
-				</div>					
+				</div>		 			
 
 
 				
@@ -233,7 +254,11 @@ class photospace_plugin_options {
 					<p><input type="text" name="main_col_height" value="<?php echo($options['main_col_height']); ?>" /></p>
 				</div>
 				
+				<div style="width:25%; float:left;">
+					<h3>Crop thumnails</h3>
+					<h3><label><input name="thumbnail_crop" type="checkbox" value="checkbox" <?php if($options['thumbnail_crop']) echo "checked='checked'"; ?> /></label></h3>
 
+				</div>				
 
 				<div style="clear:both; padding-bottom:15px; border-bottom:solid 1px #e6e6e6" ></div>
 				
@@ -241,12 +266,7 @@ class photospace_plugin_options {
 					<h3>Number of thumbnails</h3>
 					<p><input type="text" name="num_thumb" value="<?php echo($options['num_thumb']); ?>" /></p>
 				</div>
-				
-				<div style="width:25%; float:left;">
-					<h3>Crop thumnails</h3>
-					<h3><label><input name="thumbnail_crop" type="checkbox" value="checkbox" <?php if($options['thumbnail_crop']) echo "checked='checked'"; ?> /></label></h3>
-
-				</div>					
+					
 				
 				<div style="width:25%; float:left;">				
 					<h3>Thumbnail column width</h3>
@@ -298,8 +318,13 @@ wp_enqueue_script('jquery');
 $photospace_wp_plugin_path = get_option('siteurl')."/wp-content/plugins/photospace";
 
 wp_enqueue_style( 'photospace-styles', 	$photospace_wp_plugin_path . '/gallery.css');
+if ($options['enable_history']) {											  
+	wp_enqueue_script( 'history', 	$photospace_wp_plugin_path . '/jquery.history.js');
+}
 wp_enqueue_script( 'galleriffic', 		$photospace_wp_plugin_path . '/jquery.galleriffic.js');
 wp_enqueue_script( 'opacityrollover', 	$photospace_wp_plugin_path . '/jquery.opacityrollover.js');
+
+
 
 add_action( 'wp_head', 'photospace_wp_headers', 10 );
 
@@ -426,6 +451,16 @@ function photospace_wp_headers() {
 			}
 		'; 
 	}
+	if($options['use_paging']){ 
+		echo '
+			.pageLink{
+				display:none !important;
+			}
+			.gallery{
+				margin-top:43px;
+			}
+		'; 
+	}
 
 	echo '</style>'; 
 			
@@ -450,7 +485,10 @@ function photospace_shortcode( $atts ) {
 		'auto_play' 		=> $options['auto_play'],
 		'delay' 			=> $options['delay'],
 		'hide_thumbs' 		=> $options['hide_thumbs'],
-		'horizontal_thumb' 	=> 0		
+		'use_paging' 		=> $options['use_paging'],
+		'horizontal_thumb' 	=> 0,
+		'include'    => '',
+		'exclude'    => ''
 	), $atts));
 	
 	$post_id = intval($post->ID);
@@ -485,10 +523,22 @@ function photospace_shortcode( $atts ) {
 						<ul class="thumbs noscript">				
 						';
 							
-						$attachments = get_children("post_parent=$id&post_type=attachment&post_mime_type=image&orderby=menu_order&order=asc"); 
-				
-						//if ( function_exists('has_post_thumbnail') && has_post_thumbnail($post->ID) ) {
-						//	$thumbnail = wp_get_attachment_image_src( get_post_thumbnail_id($post->ID), full );
+						//$attachments = get_children("post_parent=$id&post_type=attachment&post_mime_type=image&orderby=menu_order&order=asc"); 
+						
+						if ( !empty($include) ) { 
+							$include = preg_replace( '/[^0-9,]+/', '', $include );
+							$_attachments = get_posts( array('include' => $include, 'post_status' => 'inherit', 'post_type' => 'attachment', 'post_mime_type' => 'image', 'order' => $order, 'orderby' => $orderby) );
+					
+							$attachments = array();
+							foreach ( $_attachments as $key => $val ) {
+								$attachments[$val->ID] = $_attachments[$key];
+							}
+						} elseif ( !empty($exclude) ) {
+							$exclude = preg_replace( '/[^0-9,]+/', '', $exclude );
+							$attachments = get_children( array('post_parent' => $id, 'exclude' => $exclude, 'post_status' => 'inherit', 'post_type' => 'attachment', 'post_mime_type' => 'image', 'order' => $order, 'orderby' => $orderby) );
+						} else {
+							$attachments = get_children( array('post_parent' => $id, 'post_status' => 'inherit', 'post_type' => 'attachment', 'post_mime_type' => 'image', 'order' => $order, 'orderby' => $orderby) );
+						}
 		
 						if ( !empty($attachments) ) {
 							foreach ( $attachments as $aid => $attachment ) {
@@ -599,7 +649,7 @@ function photospace_shortcode( $atts ) {
 					delay:                     " . intval($delay) . ",
 					numThumbs:                 " . intval($num_thumb) . ",
 					preloadAhead:              " . intval($num_preload) . ",
-					enableTopPager:            false,
+					enableTopPager:            " . intval($use_paging) . ",
 					enableBottomPager:         false,
 					imageContainerSel:         '#slideshow_".$post_id."',
 					controlsContainerSel:      '#controls_".$post_id."',
@@ -611,10 +661,10 @@ function photospace_shortcode( $atts ) {
 					pauseLinkText:             'Pause Slideshow',
 					prevLinkText:              '&lsaquo; Previous Photo',
 					nextLinkText:              'Next Photo &rsaquo;',
-					nextPageLinkText:          'Next &rsaquo;',
-					prevPageLinkText:          '&lsaquo; Prev',
-					enableHistory:             	false,  
-					autoStart:                 	'" . $auto_play . "',
+					nextPageLinkText:          '&rsaquo;',
+					prevPageLinkText:          '&lsaquo;',
+					enableHistory:              " . intval($options['enable_history']) . ",
+					autoStart:                 	" . intval($auto_play) . ",
 					enableKeyboardNavigation:	true,
 					syncTransitions:           	true,
 					defaultTransitionDuration: 	300,
@@ -669,9 +719,56 @@ function photospace_shortcode( $atts ) {
 							fadeSpeed:         'fast',
 							exemptionSelector: '.selected'
 						});
-					}
+					},
 					
-				}); ";
+				}); 
+				
+				";
+				
+				if ($options['enable_history']) {	
+					
+					$output_buffer .= "
+						
+						/**** Functions to support integration of galleriffic with the jquery.history plugin ****/
+		 
+						// PageLoad function
+						// This function is called when:
+						// 1. after calling $.historyInit();
+						// 2. after calling $.historyLoad();
+						// 3. after pushing Go Back button of a browser
+						function pageload(hash) {
+							// alert('pageload: ' + hash);
+							// hash doesn't contain the first # character.
+							if(hash) {
+								$.galleriffic.gotoImage(hash);
+							} else {
+								gallery.gotoIndex(0);
+							}
+						}
+		 
+						// Initialize history plugin.
+						// The callback is called at once by present location.hash. 
+						$.historyInit(pageload, 'advanced.html');
+		 
+						// set onlick event for buttons using the jQuery 1.3 live method
+						$('a[rel=history]').live('click', function(e) {
+							if (e.button != 0) return true;
+							
+							var hash = this.href;
+							hash = hash.replace(/^.*#/, '');
+		 
+							// moves to a new page. 
+							// pageload is called at once.  
+							$.historyLoad(hash);
+		 
+							return false;
+						});
+		 
+						/****************************************************************************************/
+						
+						
+						";
+				}
 				
 			if($use_hover){ 		
 		 
