@@ -6,7 +6,7 @@ Description: A image gallery plugin for WordPress built using Galleriffic.
 <a href="http://www.twospy.com/galleriffic/>galleriffic</a>
 Author: Dean Oakley
 Author URI: http://deanoakley.com/
-Version: 2.1.0
+Version: 2.1.1
 */
 
 /*  Copyright 2010  Dean Oakley  (email : contact@deanoakley.com)
@@ -340,10 +340,10 @@ function photospace_wp_headers() {
 	
 		echo '
 			/* reset */ 
-			body .gallery img,
-			body .gallery ul.thumbs,
-			body .gallery ul.thumbs li,
-			body .gallery ul.thumbs li a{
+			.photospace img,
+			.photospace ul.thumbs,
+			.photospace ul.thumbs li,
+			.photospace ul.thumbs li a{
 				padding:0;
 				margin:0;
 				border:none !important;
@@ -351,7 +351,7 @@ function photospace_wp_headers() {
 				height:auto !important;
 				width:auto !important;
 			}
-			body .gallery span{
+			.photospace span{
 				padding:0; 
 				margin:0;
 				border:none !important;
@@ -362,66 +362,66 @@ function photospace_wp_headers() {
 	
 	if(!empty($options['button_size']))
 		echo '
-			.gallery .thumnail_col a.pageLink {
+			.photospace .thumnail_col a.pageLink {
 				width:'.$options['button_size'] .'px;
 				height:'.$options['button_size'] .'px;
 			}
 		';		
 	
 	if(!empty($options['thumb_col_width']))
-		echo '	.gallery .thumnail_col{
+		echo '	.photospace .thumnail_col{
 					width:'. $options['thumb_col_width'] .'px;
 				}
 		';	
 	
 	if(!empty($options['main_col_width']))
-		echo '	.gallery .gal_content,
-				.gallery .loader,
-				.gallery .slideshow a.advance-link{
+		echo '	.photospace .gal_content,
+				.photospace .loader,
+				.photospace .slideshow a.advance-link{
 					width:'. $options['main_col_width'] .'px;
 				}
 		';
 
 	if(!empty($options['gallery_width']))
-		echo '	.gallery{
+		echo '	.photospace{
 					width:'. $options['gallery_width'] .'px;
 				}
 		';
 		
 	if(!empty($options['main_col_height']))
-		echo '	.gallery{
+		echo '	.photospace{
 					height:'. $options['main_col_height'] .'px;
 				}
 		';
 		
 	if(!empty($options['thumbnail_margin']))
-		echo '	.gallery ul.thumbs li {
+		echo '	.photospace ul.thumbs li {
 					margin-bottom:'. $options['thumbnail_margin'] .'px !important;
 					margin-right:'. $options['thumbnail_margin'] .'px !important; 
 				}
 		';
 	
 	if(!empty($options['main_col_height']))
-		echo '	.gallery .loader {
+		echo '	.photospace .loader {
 					height: '. $options['main_col_height'] / 2 . 'px;
 				}
 		';
 		
 	if(!empty($options['main_col_width']))
-		echo '	.gallery .loader {
+		echo '	.photospace .loader {
 					width: '. $options['main_col_width'] . 'px;
 				}
 		';
 
 	if(!empty($options['main_col_height']))
-		echo '	.gallery .slideshow a.advance-link,
-				.gallery .slideshow span.image-wrapper {
+		echo '	.photospace .slideshow a.advance-link,
+				.photospace .slideshow span.image-wrapper {
 					height:'. $options['main_col_height'] .'px;
 				}
 		';
 		
 	if(!empty($options['main_col_height']))
-		echo '	.gallery .slideshow-container {
+		echo '	.photospace .slideshow-container {
 					height:'. $options['main_col_height'] .'px;
 				}
 		';
@@ -429,24 +429,24 @@ function photospace_wp_headers() {
 	if($options['show_bg']){ 
 	
 		echo '
-			.gallery{
+			.photospace{
 				background-color:#fbefd7;
 			}
 			
-			.gallery .thumnail_col {
+			.photospace .thumnail_col {
 				background-color:#e7cf9f;
 			}
 			
-			.gallery .gal_content,
-			.gallery .loader,
-			.gallery .slideshow a.advance-link {
+			.photospace .gal_content,
+			.photospace .loader,
+			.photospace .slideshow a.advance-link {
 				background-color:#e7cf9f;
 			}'; 
 	}
 	
 	if($options['hide_thumbs']){ 
 		echo '
-			.gallery .thumnail_col{
+			.photospace .thumnail_col{
 				display:none !important;
 			}
 		'; 
@@ -456,7 +456,7 @@ function photospace_wp_headers() {
 			.pageLink{
 				display:none !important;
 			}
-			.gallery{
+			.photospace{
 				margin-top:43px;
 			}
 		'; 
@@ -507,7 +507,7 @@ function photospace_shortcode( $atts ) {
 	$output_buffer ='
 	
 		<div class="gallery_clear"></div> 
-		<div id="gallery_'.$post_id.'" class="gallery"> 
+		<div id="gallery_'.$post_id.'" class="photospace"> 
 	
 			<!-- Start Advanced Gallery Html Containers -->
 			<div class="thumbs_wrap2">
