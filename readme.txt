@@ -44,6 +44,9 @@ See a [demo here](http://thriveweb.com.au/blog/wordpress-gallery-plugin-photospa
 
 
 == Changelog ==
+= 2.1.2 =
+* Ordering fix
+
 = 2.1.1 =
 * CSS updates to reduce conflicts
 * Paging fix
