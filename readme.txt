@@ -40,10 +40,13 @@ See a [demo here](http://thriveweb.com.au/blog/wordpress-gallery-plugin-photospa
 1. Upload `/photospace/` to the `/wp-content/plugins/` directory
 2. Activate the plugin through the 'Plugins' menu in WordPress
 3. Upload some photos to the post or page where you want the gallery
-3. Place the shortcode [photospace]  in your content
+4. Place the shortcode [photospace]  in your content
 
 
 == Changelog ==
+= 2.1.5 =
+* Added missing title attribute
+
 = 2.1.4 =
 * Added missing file jquery.history.js to repository.
 
