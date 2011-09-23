@@ -24,7 +24,7 @@
 .photospace .gal_content a, 
 .photospace .thumnail_col a {
 	text-decoration: none;
-	color: #777;
+	color: #8E8E8E;
 }
 
 .photospace .gal_content a:hover{
@@ -94,6 +94,7 @@
 }
 .photospace .download {
 	float: right;
+	padding-top: 12px;
 }
 .photospace .caption-container {
 	

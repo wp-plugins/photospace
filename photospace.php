@@ -6,7 +6,7 @@ Description: A image gallery plugin for WordPress built using Galleriffic.
 <a href="http://www.twospy.com/galleriffic/>galleriffic</a>
 Author: Dean Oakley
 Author URI: http://deanoakley.com/
-Version: 2.1.6
+Version: 2.1.8
 */
 
 /*  Copyright 2010  Dean Oakley  (email : contact@deanoakley.com)
@@ -71,7 +71,14 @@ class photospace_plugin_options {
 			$options['thumb_col_width'] = '181';	
 			$options['main_col_width'] = '400';
 			$options['main_col_height'] = '500';
-			$options['gallery_width'] = '600';			
+			$options['gallery_width'] = '600';
+			
+			$options['play_text'] = 'Play Slideshow';
+			$options['pause_text'] = 'Pause Slideshow';
+			$options['previous_text'] = '&lsaquo; Previous Photo';
+			$options['next_text'] = 'Next Photo &rsaquo;';
+			$options['download_text'] = 'Download Original';	
+						
 			
 			update_option('ps_options', $options);
 		}
@@ -162,7 +169,13 @@ class photospace_plugin_options {
 				$options['reset_css'] = (bool)true;
 			} else {
 				$options['reset_css'] = (bool)false;
-			}			
+			}
+			
+			$options['play_text'] = stripslashes($_POST['play_text']);
+			$options['pause_text'] = stripslashes($_POST['pause_text']);
+			$options['previous_text'] = stripslashes($_POST['previous_text']);
+			$options['next_text'] = stripslashes($_POST['next_text']);
+			$options['download_text'] = stripslashes($_POST['download_text']);
 			
 			update_option('ps_options', $options);
 
@@ -203,7 +216,7 @@ class photospace_plugin_options {
 				
 				<h3><label><input name="show_captions" type="checkbox" value="checkbox" <?php if($options['show_captions']) echo "checked='checked'"; ?> /> Show Title / Caption / Desc under image</label></h3>
 				
-				<h3><label><input name="reset_css" type="checkbox" value="checkbox" <?php if($options['reset_css']) echo "checked='checked'"; ?> /> Try to clear current theme image css / formating</label></h3>
+				<h3><label><input name="reset_css" type="checkbox" value="checkbox" <?php if($options['reset_css']) echo "checked='checked'"; ?> /> Try to clear current theme image css / formatting</label></h3>
 
 
 				<h3><label><input name="show_bg" type="checkbox" value="checkbox" <?php if($options['show_bg']) echo "checked='checked'"; ?> /> Show background colours for layout testing</label></h3>
@@ -232,7 +245,7 @@ class photospace_plugin_options {
 				
 				<div style="clear:both; padding-bottom:15px; border-bottom:solid 1px #e6e6e6" ></div>
 				
-				<h3 style="font-style:italic" >Images that are already on the server will not change size until you regenerage the thumbnails. Use <a title="http://wordpress.org/extend/plugins/ajax-thumbnail-rebuild/" href="http://wordpress.org/extend/plugins/ajax-thumbnail-rebuild/">AJAX thumbnail rebuild</a> (recommended) or <a title="http://wordpress.org/extend/plugins/regenerate-thumbnails/" href="http://wordpress.org/extend/plugins/regenerate-thumbnails/">Regenerate Thumbnails</a> (easier)</h3>
+				<h3 style="font-style:italic; font-weight:normal; color:grey " >Images that are already on the server will not change size until you regenerate the thumbnails. Use <a title="http://wordpress.org/extend/plugins/ajax-thumbnail-rebuild/" href="http://wordpress.org/extend/plugins/ajax-thumbnail-rebuild/">AJAX thumbnail rebuild</a> or <a title="http://wordpress.org/extend/plugins/regenerate-thumbnails/" href="http://wordpress.org/extend/plugins/regenerate-thumbnails/">Regenerate Thumbnails</a> </h3>
 
 				<div style="width:25%;float:left;">				
 					<h3>Thumbnail Width</h3>
@@ -286,6 +299,37 @@ class photospace_plugin_options {
 				<h3>Gallery width (at least Thumbnail column + Main image width)</h3>
 				<p><input type="text" name="gallery_width" value="<?php echo($options['gallery_width']); ?>" /></p>
 				<br />
+				
+				<div style="clear:both; padding-bottom:15px; border-bottom:solid 1px #e6e6e6" ></div>
+				
+								
+				<div style="width:25%; float:left;">
+					<h3>Play text</h3>				
+					<p><input type="text" name="play_text" value="<?php echo($options['play_text']); ?>" /></p>
+				</div>
+				
+				<div style="width:25%; float:left;">
+					<h3>Pause text</h3>					
+					<p><input type="text" name="pause_text" value="<?php echo($options['pause_text']); ?>" /></p>
+				</div>
+				
+				<div style="width:25%; float:left;">				
+					<h3>Previous text</h3>	
+					<p><input type="text" name="previous_text" value="<?php echo($options['previous_text']); ?>" /></p>
+				</div>
+
+				<div style="width:25%; float:left;">				
+					<h3>Next text</h3>	
+					<p><input type="text" name="next_text" value="<?php echo($options['next_text']); ?>" /></p>
+				</div>
+				
+				<div style="width:25%; float:left;">				
+					<h3>Download link text</h3>	
+					<p><input type="text" name="download_text" value="<?php echo($options['download_text']); ?>" /></p>
+				</div>
+
+				<div style="clear:both; padding-bottom:15px; border-bottom:solid 1px #e6e6e6" ></div>
+
 			
 				<p><input class="button-primary" type="submit" name="ps_save" value="Save Changes" /></p>
 			
@@ -294,7 +338,7 @@ class photospace_plugin_options {
 		</div>
 		
 		<?php
-	} 
+	}  
 } 
 
 function PS_getOption($option) {
@@ -561,15 +605,22 @@ function photospace_shortcode( $atts ) {
 											';
 											if($show_captions){ 	
 												
-												$output_buffer .='
-												<div class="image-caption">' .  $image_caption . '</div>
-												<div class="image-desc">' .  $image_description . '</div>
-												';
+												if($image_caption != ''){
+													$output_buffer .='
+														<div class="image-caption">' .  $image_caption . '</div>
+													';
+												}
+												
+												if($image_description != ''){
+													$output_buffer .='
+													<div class="image-desc">' .  $image_description . '</div>
+													';
+												} 
 											}
 											
 											if($show_download){ 		
 												$output_buffer .='
-												<div class="download"><a href="'.$full[0].'">Download Original</a></div>
+												<div class="download"><a href="'.$full[0].'">'. $options["download_text"] .'</a></div>
 												';
 											}
 											
@@ -655,10 +706,10 @@ function photospace_shortcode( $atts ) {
 					loadingContainerSel:       '#loading_".$post_id."',
 					renderSSControls:          true,
 					renderNavControls:         true,
-					playLinkText:              'Play Slideshow',
-					pauseLinkText:             'Pause Slideshow',
-					prevLinkText:              '&lsaquo; Previous Photo',
-					nextLinkText:              'Next Photo &rsaquo;',
+					playLinkText:              '<span>". $options['play_text'] ."</span>',
+					pauseLinkText:             '<span>". $options['pause_text'] ."</span>',
+					prevLinkText:              '<span>". $options['previous_text'] ."</span>',
+					nextLinkText:              '<span>". $options['next_text'] ."</span>',
 					nextPageLinkText:          '&rsaquo;',
 					prevPageLinkText:          '&lsaquo;',
 					enableHistory:              " . intval($options['enable_history']) . ",
