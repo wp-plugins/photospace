@@ -143,7 +143,19 @@
 	height:auto;
 	padding: 0;
 	margin: 0;
+	
+	opacity: 0.67;
+	
+	-webkit-transition: all 0.5s ease-in-out;
+	-moz-transition: all 0.5s ease;
+	-o-transition: all 0.5s ease;
+	transition: all 0.5s ease;
 }
+
+.photospace a.thumb:hover{
+	opacity: 1;
+}
+
 
 .photospace a.thumb:focus {
 	outline: none;

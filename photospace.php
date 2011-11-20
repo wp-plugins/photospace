@@ -6,7 +6,7 @@ Description: A image gallery plugin for WordPress built using Galleriffic.
 <a href="http://www.twospy.com/galleriffic/>galleriffic</a>
 Author: Dean Oakley
 Author URI: http://deanoakley.com/
-Version: 2.1.8
+Version: 2.2.0
 */
 
 /*  Copyright 2010  Dean Oakley  (email : contact@deanoakley.com)
@@ -366,7 +366,6 @@ if ($options['enable_history']) {
 	wp_enqueue_script( 'history', 	$photospace_wp_plugin_path . '/jquery.history.js');
 }
 wp_enqueue_script( 'galleriffic', 		$photospace_wp_plugin_path . '/jquery.galleriffic.js');
-wp_enqueue_script( 'opacityrollover', 	$photospace_wp_plugin_path . '/jquery.opacityrollover.js');
 
 
 
@@ -683,15 +682,8 @@ function photospace_shortcode( $atts ) {
 				// We only want these styles applied when javascript is enabled
 				$('.gal_content').css('display', 'block');
 		
-				// Initially set opacity on thumbs and add
-				// additional styling for hover effect on thumbs
 				var onMouseOutOpacity = 0.67;
-				$('#thumbs_".$post_id." ul.thumbs li, .thumnail_col a.pageLink').opacityrollover({
-					mouseOutOpacity:   onMouseOutOpacity,
-					mouseOverOpacity:  1.0,
-					fadeSpeed:         'fast',
-					exemptionSelector: '.selected'
-				});	
+
 				
 				// Initialize Advanced Galleriffic Gallery 
 				var gallery = $('#thumbs_".$post_id."').galleriffic({ 
@@ -760,14 +752,6 @@ function photospace_shortcode( $atts ) {
 							nextPageLink.css(".$thumb_style_on.");
 		
 						this.fadeTo('fast', 1.0);
-					},
-					onImageAdded: function(imageData, li) {
-						_li.opacityrollover({
-							mouseOutOpacity:   onMouseOutOpacity,
-							mouseOverOpacity:  1.0,
-							fadeSpeed:         'fast',
-							exemptionSelector: '.selected'
-						});
 					}
 					
 				}); 
