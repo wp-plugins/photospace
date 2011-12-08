@@ -6,7 +6,7 @@ Description: A image gallery plugin for WordPress built using Galleriffic.
 <a href="http://www.twospy.com/galleriffic/>galleriffic</a>
 Author: Dean Oakley
 Author URI: http://deanoakley.com/
-Version: 2.2.0
+Version: 2.2.1
 */
 
 /*  Copyright 2010  Dean Oakley  (email : contact@deanoakley.com)
@@ -411,12 +411,6 @@ function photospace_wp_headers() {
 			}
 		';		
 	
-	if(!empty($options['thumb_col_width']))
-		echo '	.photospace .thumnail_col{
-					width:'. $options['thumb_col_width'] .'px;
-				}
-		';	
-	
 	if(!empty($options['main_col_width']))
 		echo '	.photospace .gal_content,
 				.photospace .loader,
@@ -640,7 +634,7 @@ function photospace_shortcode( $atts ) {
 						
 						if(!$horizontal_thumb){ 		
 								$output_buffer .='
-								<div class="gallery_clear"></div>
+								<div class="photospace_clear"></div>
 								<a class="pageLink prev" style="'.$thumb_style_init.'" href="#" title="Previous Page"></a>';
 						}
 						
@@ -681,9 +675,13 @@ function photospace_shortcode( $atts ) {
 				
 				// We only want these styles applied when javascript is enabled
 				$('.gal_content').css('display', 'block');
-		
-				var onMouseOutOpacity = 0.67;
-
+				";
+				
+				if(!$horizontal_thumb){
+					$output_buffer .= "$('.thumnail_col').css('width', '". $options['thumb_col_width'] . "px');";
+				}
+				
+				$output_buffer .= "
 				
 				// Initialize Advanced Galleriffic Gallery 
 				var gallery = $('#thumbs_".$post_id."').galleriffic({ 
@@ -710,12 +708,6 @@ function photospace_shortcode( $atts ) {
 					syncTransitions:           	true,
 					defaultTransitionDuration: 	300,
 						
-					onSlideChange:             function(prevIndex, nextIndex) {
-						// 'this' refers to the gallery, which is an extension of $('#thumbs')
-						this.find('ul.thumbs').children()
-							.eq(prevIndex).fadeTo('fast', onMouseOutOpacity).end()
-							.eq(nextIndex).fadeTo('fast', 1.0);
-					},
 					onTransitionOut:           function(slide, caption, isSync, callback) {
 						slide.fadeTo(this.getDefaultTransitionDuration(isSync), 0.0, callback);
 						caption.fadeTo(this.getDefaultTransitionDuration(isSync), 0.0);

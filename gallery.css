@@ -12,7 +12,7 @@
 .photospace .thumnail_col{ 
 	float:left;
 	opacity:1;
-	width:181px;
+	
 }
 
 .photospace .gal_content {
@@ -136,6 +136,7 @@
 	margin-right: 10px;
 	margin-bottom: 10px;
 	list-style: none  !important;
+	
 }
 
 .photospace a.thumb {
@@ -152,7 +153,8 @@
 	transition: all 0.5s ease;
 }
 
-.photospace a.thumb:hover{
+.photospace li a:hover,
+.photospace li.selected a{
 	opacity: 1;
 }
 
