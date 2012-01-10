@@ -6,7 +6,7 @@ Description: A image gallery plugin for WordPress built using Galleriffic.
 <a href="http://www.twospy.com/galleriffic/>galleriffic</a>
 Author: Dean Oakley
 Author URI: http://deanoakley.com/
-Version: 2.2.1
+Version: 2.2.3
 */
 
 /*  Copyright 2010  Dean Oakley  (email : contact@deanoakley.com)
@@ -357,19 +357,21 @@ add_image_size('photospace_full', $options['main_col_width'], $options['main_col
 
 //============================== insert HTML header tag ========================//
 
-wp_enqueue_script('jquery');
-
-$photospace_wp_plugin_path = get_option('siteurl')."/wp-content/plugins/photospace";
-
-wp_enqueue_style( 'photospace-styles', 	$photospace_wp_plugin_path . '/gallery.css');
-if ($options['enable_history']) {											  
-	wp_enqueue_script( 'history', 	$photospace_wp_plugin_path . '/jquery.history.js');
+function photospace_scripts_method() {
+	wp_enqueue_script('jquery');	
+	$photospace_wp_plugin_path = get_option('siteurl')."/wp-content/plugins/photospace";	
+	wp_enqueue_style( 'photospace-styles',	$photospace_wp_plugin_path . '/gallery.css');
+	wp_enqueue_script( 'galleriffic', 		$photospace_wp_plugin_path . '/jquery.galleriffic.js');
 }
-wp_enqueue_script( 'galleriffic', 		$photospace_wp_plugin_path . '/jquery.galleriffic.js');
+add_action('wp_enqueue_scripts', 'photospace_scripts_method');
 
-
-
-add_action( 'wp_head', 'photospace_wp_headers', 10 );
+function photospace_scripts_method_history() {							
+	$photospace_wp_plugin_path = get_option('siteurl')."/wp-content/plugins/photospace";						  
+	wp_enqueue_script( 'history', 		$photospace_wp_plugin_path . '/jquery.history.js');	
+}
+if ($options['enable_history']) {
+	add_action('wp_enqueue_scripts', 'photospace_scripts_method_history');
+}	
 
 function photospace_wp_headers() {
 	
@@ -503,8 +505,7 @@ function photospace_wp_headers() {
 			
 	echo "<!--	photospace [ END ] --> \n";
 }
-
-
+add_action( 'wp_head', 'photospace_wp_headers', 10 );
 
 add_shortcode( 'photospace', 'photospace_shortcode' );
 function photospace_shortcode( $atts ) {
@@ -724,7 +725,7 @@ function photospace_shortcode( $atts ) {
 								'top' : slideImage.outerHeight(),
 								'left' : Math.floor((slide.width() - slideImage.width()) / 2) + slideImage.outerWidth() - slideImage.width()
 							})
-							.fadeTo(1000, 1.0);
+							.fadeTo(duration, 1.0);
 						
 					},
 					onPageTransitionOut:       function(callback) {

@@ -66,6 +66,7 @@
 
 .photospace .slideshow span.image-wrapper {
 	display: block;
+	display: inline-block;
 	position: absolute;
 	top: 0;
 	left: 0;
@@ -147,10 +148,10 @@
 	
 	opacity: 0.67;
 	
-	-webkit-transition: all 0.5s ease-in-out;
-	-moz-transition: all 0.5s ease;
-	-o-transition: all 0.5s ease;
-	transition: all 0.5s ease;
+	-webkit-transition: all 0.4s ease-in-out;
+	-moz-transition: all 0.4s ease;
+	-o-transition: all 0.4s ease;
+	transition: all 0.4s ease;
 }
 
 .photospace li a:hover,
@@ -222,7 +223,7 @@
 	height: 50px;
 	line-height: 50px;
 	background-color:#FFF;
-	
+	opacity: 0.67;
 	display: block;
 	position: relative;
 	float: left;
@@ -230,9 +231,17 @@
 	background-repeat:no-repeat;
 	margin-right:10px;
 	border:solid 1px #CCC;
+	
+	-webkit-transition: all 0.2s ease-in-out;
+	-moz-transition: all 0.2s ease;
+	-o-transition: all 0.2s ease;
+	transition: all 0.2s ease;
 }
 .photospace .thumnail_col a.pageLink:focus {
 	outline: none;
+}
+.photospace .thumnail_col a.pageLink:hover {
+	opacity: 1;
 }
 
 .photospace .thumnail_col a.prev {
