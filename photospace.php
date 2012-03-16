@@ -359,14 +359,14 @@ add_image_size('photospace_full', $options['main_col_width'], $options['main_col
 
 function photospace_scripts_method() {
 	wp_enqueue_script('jquery');	
-	$photospace_wp_plugin_path = get_option('siteurl')."/wp-content/plugins/photospace";	
+	$photospace_wp_plugin_path = site_url()."/wp-content/plugins/photospace";	
 	wp_enqueue_style( 'photospace-styles',	$photospace_wp_plugin_path . '/gallery.css');
 	wp_enqueue_script( 'galleriffic', 		$photospace_wp_plugin_path . '/jquery.galleriffic.js');
 }
 add_action('wp_enqueue_scripts', 'photospace_scripts_method');
 
 function photospace_scripts_method_history() {							
-	$photospace_wp_plugin_path = get_option('siteurl')."/wp-content/plugins/photospace";						  
+	$photospace_wp_plugin_path = site_url()."/wp-content/plugins/photospace";						  
 	wp_enqueue_script( 'history', 		$photospace_wp_plugin_path . '/jquery.history.js');	
 }
 if ($options['enable_history']) {
@@ -542,7 +542,7 @@ function photospace_shortcode( $atts ) {
 	$thumb_style_off  = "'display', 'none'";
 
 	
-	$photospace_wp_plugin_path = get_option('siteurl')."/wp-content/plugins/photospace";
+	$photospace_wp_plugin_path = site_url()."/wp-content/plugins/photospace";
 	
 	$output_buffer ='
 	

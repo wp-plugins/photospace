@@ -47,6 +47,7 @@ See a [demo here](http://thriveweb.com.au/blog/wordpress-gallery-plugin-photospa
 
 = 2.2.4 =
 * update to support responsive layouts
+* Updated site_url()
 
 = 2.2.3 =
 * Proper script enqueuing
