@@ -6,7 +6,7 @@ Description: A image gallery plugin for WordPress built using Galleriffic.
 <a href="http://www.twospy.com/galleriffic/>galleriffic</a>
 Author: Dean Oakley
 Author URI: http://deanoakley.com/
-Version: 2.2.4
+Version: 2.2.5
 */
 
 /*  Copyright 2010  Dean Oakley  (email : contact@deanoakley.com)
@@ -616,7 +616,7 @@ function photospace_shortcode( $atts ) {
 											
 											if($show_download){ 		
 												$output_buffer .='
-												<div class="download"><a href="'.$full[0].'">'. $options["download_text"] .'</a></div>
+												<div class="download"><a href="'.$full[0].'" title="'. $options["download_text"] .'" ><span>'. $options["download_text"] .'</span></a></div>
 												';
 											}
 											
@@ -699,10 +699,10 @@ function photospace_shortcode( $atts ) {
 					loadingContainerSel:       '#loading_".$post_id."',
 					renderSSControls:          true,
 					renderNavControls:         true,
-					playLinkText:              '<span>". $options['play_text'] ."</span>',
-					pauseLinkText:             '<span>". $options['pause_text'] ."</span>',
-					prevLinkText:              '<span>". $options['previous_text'] ."</span>',
-					nextLinkText:              '<span>". $options['next_text'] ."</span>',
+					playLinkText:              '". $options['play_text'] ."',
+					pauseLinkText:             '". $options['pause_text'] ."',
+					prevLinkText:              '". $options['previous_text'] ."',
+					nextLinkText:              '". $options['next_text'] ."',
 					nextPageLinkText:          '&rsaquo;',
 					prevPageLinkText:          '&lsaquo;',
 					enableHistory:              " . intval($options['enable_history']) . ",

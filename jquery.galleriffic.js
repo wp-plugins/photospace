@@ -906,10 +906,10 @@
 			if (this.renderSSControls) {
 				if (this.autoStart) {
 					this.$controlsContainer
-						.append('<div class="ss-controls"><a href="#pause" class="pause" title="'+this.pauseLinkText+'">'+this.pauseLinkText+'</a></div>');
+						.append('<div class="ss-controls"><a href="#pause" class="pause" title="'+this.pauseLinkText+'"><span>'+this.pauseLinkText+'</span></a></div>');
 				} else {
 					this.$controlsContainer
-						.append('<div class="ss-controls"><a href="#play" class="play" title="'+this.playLinkText+'">'+this.playLinkText+'</a></div>');
+						.append('<div class="ss-controls"><a href="#play" class="play" title="'+this.playLinkText+'"><span>'+this.playLinkText+'</span></a></div>');
 				}
 
 				this.$controlsContainer.find('div.ss-controls a')
@@ -922,7 +922,7 @@
 		
 			if (this.renderNavControls) {
 				this.$controlsContainer
-					.append('<div class="nav-controls"><a class="prev" rel="history" title="'+this.prevLinkText+'">'+this.prevLinkText+'</a><a class="next" rel="history" title="'+this.nextLinkText+'">'+this.nextLinkText+'</a></div>')
+					.append('<div class="nav-controls"><a class="prev" rel="history" title="'+this.prevLinkText+'"><span>'+this.prevLinkText+'</span></a><a class="next" rel="history" title="'+this.nextLinkText+'"><span>'+this.nextLinkText+'</span></a></div>')
 					.find('div.nav-controls a')
 					.click(function(e) {
 						gallery.clickHandler(e, this);
