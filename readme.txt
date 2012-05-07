@@ -3,7 +3,7 @@ Contributors: deanoakley
 Author: Dean Oakley
 Author URI: http://thriveweb.com.au/ 
 Plugin URI: http://thriveweb.com.au/the-lab/wordpress-gallery-plugin-photospace-2/
-Tags: gallery, photography, photo, plugin, image, images, gallery, slideshow, short code, jQuery, photospace, Galleriffic, responsive
+Tags: gallery, image gallery, website gallery, photoalbum, photogallery, photo, plugin, images, slideshow, short code, jQuery, photospace, Galleriffic, responsive
 Requires at least: 3.0
 Tested up to: 3.3.1
 Stable tag: 2.2.5
@@ -42,6 +42,10 @@ See a [demo here](http://thriveweb.com.au/blog/wordpress-gallery-plugin-photospa
 3. Upload some photos to the post or page where you want the gallery
 4. Place the shortcode [photospace]  in your content
 
+== Screenshots ==
+
+1. Screenshot Default gallery layout
+2. Screenshot Admin Area 
 
 == Changelog ==
 
