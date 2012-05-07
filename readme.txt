@@ -48,6 +48,7 @@ See a [demo here](http://thriveweb.com.au/blog/wordpress-gallery-plugin-photospa
 = 2.2.5 =
 * Removed spans from displaying in control titles
 * Added title and span to download link
+* Added classes to prev and next in paging
 
 = 2.2.4 =
 * Update to support responsive layouts
