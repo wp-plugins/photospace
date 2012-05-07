@@ -1,992 +1,832 @@
-/**
- * jQuery Galleriffic plugin
- *
- * Copyright (c) 2008 Trent Foley (http://trentacular.com)
- * Licensed under the MIT License:
- *   http://www.opensource.org/licenses/mit-license.php
- *
- * Much thanks to primary contributer Ponticlaro (http://www.ponticlaro.com)
- */
-;(function($) {
-	// Globally keep track of all images by their unique hash.  Each item is an image data object.
-	var allImages = {};
-	var imageCounter = 0;
+<?php
+/*
+Plugin Name: Photospace
+Plugin URI: http://thriveweb.com.au/the-lab/wordpress-gallery-plugin-photospace-2/
+Description: A image gallery plugin for WordPress built using Galleriffic. 
+<a href="http://www.twospy.com/galleriffic/>galleriffic</a>
+Author: Dean Oakley
+Author URI: http://deanoakley.com/
+Version: 2.2.5
+*/
 
-	// Galleriffic static class
-	$.galleriffic = {
-		version: '2.0.1',
+/*  Copyright 2010  Dean Oakley  (email : contact@deanoakley.com)
 
-		// Strips invalid characters and any leading # characters
-		normalizeHash: function(hash) {
-			return hash.replace(/^.*#/, '').replace(/\?.*$/, '');
-		},
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License, version 2, as 
+    published by the Free Software Foundation.
+ 
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
 
-		getImage: function(hash) {
-			if (!hash)
-				return undefined;
+    You should have received a copy of the GNU General Public License
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+*/
 
-			hash = $.galleriffic.normalizeHash(hash);
-			return allImages[hash];
-		},
+if(preg_match('#' . basename(__FILE__) . '#', $_SERVER['PHP_SELF'])) { 
+	die('Illegal Entry');  
+}
 
-		// Global function that looks up an image by its hash and displays the image.
-		// Returns false when an image is not found for the specified hash.
-		// @param {String} hash This is the unique hash value assigned to an image.
-		gotoImage: function(hash) {
-			var imageData = $.galleriffic.getImage(hash);
-			if (!imageData)
-				return false;
+//============================== Photospace options ========================//
+class photospace_plugin_options {
 
-			var gallery = imageData.gallery;
-			gallery.gotoImage(imageData);
+	function PS_getOptions() {
+		$options = get_option('ps_options');
+		
+		if (!is_array($options)) {
 			
-			return true;
-		},
-
-		// Removes an image from its respective gallery by its hash.
-		// Returns false when an image is not found for the specified hash or the
-		// specified owner gallery does match the located images gallery.
-		// @param {String} hash This is the unique hash value assigned to an image.
-		// @param {Object} ownerGallery (Optional) When supplied, the located images
-		// gallery is verified to be the same as the specified owning gallery before
-		// performing the remove operation.
-		removeImageByHash: function(hash, ownerGallery) {
-			var imageData = $.galleriffic.getImage(hash);
-			if (!imageData)
-				return false;
-
-			var gallery = imageData.gallery;
-			if (ownerGallery && ownerGallery != gallery)
-				return false;
-
-			return gallery.removeImageByIndex(imageData.index);
-		}
-	};
-
-	var defaults = {
-		delay:                     3000,
-		numThumbs:                 20,
-		preloadAhead:              40, // Set to -1 to preload all images
-		enableTopPager:            false,
-		enableBottomPager:         true,
-		maxPagesToShow:            7,
-		imageContainerSel:         '',
-		captionContainerSel:       '',
-		controlsContainerSel:      '',
-		loadingContainerSel:       '',
-		renderSSControls:          true,
-		renderNavControls:         true,
-		playLinkText:              'Play',
-		pauseLinkText:             'Pause',
-		prevLinkText:              'Previous',
-		nextLinkText:              'Next',
-		nextPageLinkText:          'Next &rsaquo;',
-		prevPageLinkText:          '&lsaquo; Prev',
-		enableHistory:             false,
-		enableKeyboardNavigation:  true,
-		autoStart:                 false,
-		syncTransitions:           false,
-		defaultTransitionDuration: 1000,
-		onSlideChange:             undefined, // accepts a delegate like such: function(prevIndex, nextIndex) { ... }
-		onTransitionOut:           undefined, // accepts a delegate like such: function(slide, caption, isSync, callback) { ... }
-		onTransitionIn:            undefined, // accepts a delegate like such: function(slide, caption, isSync) { ... }
-		onPageTransitionOut:       undefined, // accepts a delegate like such: function(callback) { ... }
-		onPageTransitionIn:        undefined, // accepts a delegate like such: function() { ... }
-		onImageAdded:              undefined, // accepts a delegate like such: function(imageData, $li) { ... }
-		onImageRemoved:            undefined  // accepts a delegate like such: function(imageData, $li) { ... }
-	};
-
-	// Primary Galleriffic initialization function that should be called on the thumbnail container.
-	$.fn.galleriffic = function(settings) {
-		//  Extend Gallery Object
-		$.extend(this, {
-			// Returns the version of the script
-			version: $.galleriffic.version,
-
-			// Current state of the slideshow
-			isSlideshowRunning: false,
-			slideshowTimeout: undefined,
-
-			// This function is attached to the click event of generated hyperlinks within the gallery
-			clickHandler: function(e, link) {
-				this.pause();
-
-				if (!this.enableHistory) {
-					// The href attribute holds the unique hash for an image
-					var hash = $.galleriffic.normalizeHash($(link).attr('href'));
-					$.galleriffic.gotoImage(hash);
-					e.preventDefault();
-				}
-			},
-
-			// Appends an image to the end of the set of images.  Argument listItem can be either a jQuery DOM element or arbitrary html.
-			// @param listItem Either a jQuery object or a string of html of the list item that is to be added to the gallery.
-			appendImage: function(listItem) {
-				this.addImage(listItem, false, false);
-				return this;
-			},
-
-			// Inserts an image into the set of images.  Argument listItem can be either a jQuery DOM element or arbitrary html.
-			// @param listItem Either a jQuery object or a string of html of the list item that is to be added to the gallery.
-			// @param {Integer} position The index within the gallery where the item shouold be added.
-			insertImage: function(listItem, position) {
-				this.addImage(listItem, false, true, position);
-				return this;
-			},
-
-			// Adds an image to the gallery and optionally inserts/appends it to the DOM (thumbExists)
-			// @param listItem Either a jQuery object or a string of html of the list item that is to be added to the gallery.
-			// @param {Boolean} thumbExists Specifies whether the thumbnail already exists in the DOM or if it needs to be added.
-			// @param {Boolean} insert Specifies whether the the image is appended to the end or inserted into the gallery.
-			// @param {Integer} position The index within the gallery where the item shouold be added.
-			addImage: function(listItem, thumbExists, insert, position) {
-				var $li = ( typeof listItem === "string" ) ? $(listItem) : listItem;				
-				var $aThumb = $li.find('a.thumb');
-				var slideUrl = $aThumb.attr('href');
-				var title = $aThumb.attr('title');
-				var $caption = $li.find('.caption').remove();
-				var hash = $aThumb.attr('name');
-
-				// Increment the image counter
-				imageCounter++;
-
-				// Autogenerate a hash value if none is present or if it is a duplicate
-				if (!hash || allImages[''+hash]) {
-					hash = imageCounter;
-				}
-
-				// Set position to end when not specified
-				if (!insert)
-					position = this.data.length;
-				
-				var imageData = {
-					title:title,
-					slideUrl:slideUrl,
-					caption:$caption,
-					hash:hash,
-					gallery:this,
-					index:position
-				};
-
-				// Add the imageData to this gallery's array of images
-				if (insert) {
-					this.data.splice(position, 0, imageData);
-
-					// Reset index value on all imageData objects
-					this.updateIndices(position);
-				}
-				else {
-					this.data.push(imageData);
-				}
-
-				var gallery = this;
-
-				// Add the element to the DOM
-				if (!thumbExists) {
-					// Update thumbs passing in addition post transition out handler
-					this.updateThumbs(function() {
-						var $thumbsUl = gallery.find('ul.thumbs');
-						if (insert)
-							$thumbsUl.children(':eq('+position+')').before($li);
-						else
-							$thumbsUl.append($li);
+			$options['use_paging'] = false;
+			
+			$options['enable_history'] = false;
+			
+			$options['num_thumb'] = '9';
+			
+			$options['use_hover'] = false;
+			
+			$options['show_captions'] = false;
+			
+			$options['show_download'] = false;
+			
+			$options['show_controls'] = false;
+			
+			$options['show_bg'] = false;
+			
+			$options['auto_play'] = false;			
+			$options['delay'] = 3500;
+			
+			$options['button_size'] = 50;
+			
+			$options['hide_thumbs'] = false;
+			
+			$options['reset_css'] = false;
+			
+			$options['thumbnail_margin'] = 10;
+			
+			$options['thumbnail_width'] = 50;
+			$options['thumbnail_height'] = 50;
+			$options['thumbnail_crop'] = true;	
+			
+			$options['thumb_col_width'] = '181';	
+			$options['main_col_width'] = '400';
+			$options['main_col_height'] = '500';
+			$options['gallery_width'] = '600';
+			
+			$options['play_text'] = 'Play Slideshow';
+			$options['pause_text'] = 'Pause Slideshow';
+			$options['previous_text'] = '&lsaquo; Previous Photo';
+			$options['next_text'] = 'Next Photo &rsaquo;';
+			$options['download_text'] = 'Download Original';	
 						
-						if (gallery.onImageAdded)
-							gallery.onImageAdded(imageData, $li);
-					});
-				}
-
-				// Register the image globally
-				allImages[''+hash] = imageData;
-
-				// Setup attributes and click handler
-				$aThumb.attr('rel', 'history')
-					.attr('href', '#'+hash)
-					.removeAttr('name')
-					.click(function(e) {
-						gallery.clickHandler(e, this);
-					});
-
-				return this;
-			},
-
-			// Removes an image from the gallery based on its index.
-			// Returns false when the index is out of range.
-			removeImageByIndex: function(index) {
-				if (index < 0 || index >= this.data.length)
-					return false;
-				
-				var imageData = this.data[index];
-				if (!imageData)
-					return false;
-				
-				this.removeImage(imageData);
-				
-				return true;
-			},
-
-			// Convenience method that simply calls the global removeImageByHash method.
-			removeImageByHash: function(hash) {
-				return $.galleriffic.removeImageByHash(hash, this);
-			},
-
-			// Removes an image from the gallery.
-			removeImage: function(imageData) {
-				var index = imageData.index;
-				
-				// Remove the image from the gallery data array
-				this.data.splice(index, 1);
-				
-				// Remove the global registration
-				delete allImages[''+imageData.hash];
-				
-				// Remove the image's list item from the DOM
-				this.updateThumbs(function() {
-					var $li = gallery.find('ul.thumbs')
-						.children(':eq('+index+')')
-						.remove();
-
-					if (gallery.onImageRemoved)
-						gallery.onImageRemoved(imageData, $li);
-				});
-
-				// Update each image objects index value
-				this.updateIndices(index);
-
-				return this;
-			},
-
-			// Updates the index values of the each of the images in the gallery after the specified index
-			updateIndices: function(startIndex) {
-				for (i = startIndex; i < this.data.length; i++) {
-					this.data[i].index = i;
-				}
-				
-				return this;
-			},
-
-			// Scraped the thumbnail container for thumbs and adds each to the gallery
-			initializeThumbs: function() {
-				this.data = [];
-				var gallery = this;
-
-				this.find('ul.thumbs > li').each(function(i) {
-					gallery.addImage($(this), true, false);
-				});
-
-				return this;
-			},
-
-			isPreloadComplete: false,
-
-			// Initalizes the image preloader
-			preloadInit: function() {
-				if (this.preloadAhead == 0) return this;
-				
-				this.preloadStartIndex = this.currentImage.index;
-				var nextIndex = this.getNextIndex(this.preloadStartIndex);
-				return this.preloadRecursive(this.preloadStartIndex, nextIndex);
-			},
-
-			// Changes the location in the gallery the preloader should work
-			// @param {Integer} index The index of the image where the preloader should restart at.
-			preloadRelocate: function(index) {
-				// By changing this startIndex, the current preload script will restart
-				this.preloadStartIndex = index;
-				return this;
-			},
-
-			// Recursive function that performs the image preloading
-			// @param {Integer} startIndex The index of the first image the current preloader started on.
-			// @param {Integer} currentIndex The index of the current image to preload.
-			preloadRecursive: function(startIndex, currentIndex) {
-				// Check if startIndex has been relocated
-				if (startIndex != this.preloadStartIndex) {
-					var nextIndex = this.getNextIndex(this.preloadStartIndex);
-					return this.preloadRecursive(this.preloadStartIndex, nextIndex);
-				}
-
-				var gallery = this;
-
-				// Now check for preloadAhead count
-				var preloadCount = currentIndex - startIndex;
-				if (preloadCount < 0)
-					preloadCount = this.data.length-1-startIndex+currentIndex;
-				if (this.preloadAhead >= 0 && preloadCount > this.preloadAhead) {
-					// Do this in order to keep checking for relocated start index
-					setTimeout(function() { gallery.preloadRecursive(startIndex, currentIndex); }, 500);
-					return this;
-				}
-
-				var imageData = this.data[currentIndex];
-				if (!imageData)
-					return this;
-
-				// If already loaded, continue
-				if (imageData.image)
-					return this.preloadNext(startIndex, currentIndex); 
-				
-				// Preload the image
-				var image = new Image();
-				
-				image.onload = function() {
-					imageData.image = this;
-					gallery.preloadNext(startIndex, currentIndex);
-				};
-
-				image.alt = imageData.title;
-				image.src = imageData.slideUrl;
-
-				return this;
-			},
 			
-			// Called by preloadRecursive in order to preload the next image after the previous has loaded.
-			// @param {Integer} startIndex The index of the first image the current preloader started on.
-			// @param {Integer} currentIndex The index of the current image to preload.
-			preloadNext: function(startIndex, currentIndex) {
-				var nextIndex = this.getNextIndex(currentIndex);
-				if (nextIndex == startIndex) {
-					this.isPreloadComplete = true;
-				} else {
-					// Use setTimeout to free up thread
-					var gallery = this;
-					setTimeout(function() { gallery.preloadRecursive(startIndex, nextIndex); }, 100);
-				}
+			update_option('ps_options', $options);
+		}
+		return $options;
+	}
 
-				return this;
-			},
+	function update() {
+		if(isset($_POST['ps_save'])) {
+			$options = photospace_plugin_options::PS_getOptions();
+			
+			$options['num_thumb'] = stripslashes($_POST['num_thumb']);
+			$options['thumbnail_margin'] =  stripslashes($_POST['thumbnail_margin']);
+			$options['thumbnail_width'] = stripslashes($_POST['thumbnail_width']);
+			$options['thumbnail_height'] = stripslashes($_POST['thumbnail_height']);			
+			
+			
+			$options['thumb_col_width'] = stripslashes($_POST['thumb_col_width']);
+			$options['main_col_width'] = stripslashes($_POST['main_col_width']);
+			$options['main_col_height'] = stripslashes($_POST['main_col_height']);
+			
+			$options['gallery_width'] = stripslashes($_POST['gallery_width']);
+			
+			$options['delay'] = stripslashes($_POST['delay']);
+			
+			$options['button_size'] = stripslashes($_POST['button_size']);
 
-			// Safe way to get the next image index relative to the current image.
-			// If the current image is the last, returns 0
-			getNextIndex: function(index) {
-				var nextIndex = index+1;
-				if (nextIndex >= this.data.length)
-					nextIndex = 0;
-				return nextIndex;
-			},
+			if ($_POST['enable_history']) {
+				$options['enable_history'] = (bool)true;
+			} else {
+				$options['enable_history'] = (bool)false;
+			} 
+			
+			if ($_POST['use_paging']) {
+				$options['use_paging'] = (bool)true;
+			} else {
+				$options['use_paging'] = (bool)false;
+			} 
+			
+			if ($_POST['thumbnail_crop']) {
+				$options['thumbnail_crop'] = (bool)true;
+			} else {
+				$options['thumbnail_crop'] = (bool)false;
+			} 
+			
+			if ($_POST['show_controls']) {
+				$options['show_controls'] = (bool)true;
+			} else {
+				$options['show_controls'] = (bool)false;
+			} 
+			
+			if ($_POST['show_download']) {
+				$options['show_download'] = (bool)true;
+			} else {
+				$options['show_download'] = (bool)false;
+			} 
+			
+			if ($_POST['show_captions']) {
+				$options['show_captions'] = (bool)true;
+			} else {
+				$options['show_captions'] = (bool)false;
+			}
+			
+			if ($_POST['show_bg']) {
+				$options['show_bg'] = (bool)true;
+			} else {
+				$options['show_bg'] = (bool)false;
+			} 
+					
+			if ($_POST['use_hover']) {
+				$options['use_hover'] = (bool)true;
+			} else {
+				$options['use_hover'] = (bool)false;
+			}
+			
+			if ($_POST['auto_play']) {
+				$options['auto_play'] = (bool)true;
+			} else {
+				$options['auto_play'] = (bool)false;
+			}
+			
+			if ($_POST['hide_thumbs']) {
+				$options['hide_thumbs'] = (bool)true;
+			} else {
+				$options['hide_thumbs'] = (bool)false;
+			}
+			
+			if ($_POST['reset_css']) {
+				$options['reset_css'] = (bool)true;
+			} else {
+				$options['reset_css'] = (bool)false;
+			}
+			
+			$options['play_text'] = stripslashes($_POST['play_text']);
+			$options['pause_text'] = stripslashes($_POST['pause_text']);
+			$options['previous_text'] = stripslashes($_POST['previous_text']);
+			$options['next_text'] = stripslashes($_POST['next_text']);
+			$options['download_text'] = stripslashes($_POST['download_text']);
+			
+			update_option('ps_options', $options);
 
-			// Safe way to get the previous image index relative to the current image.
-			// If the current image is the first, return the index of the last image in the gallery.
-			getPrevIndex: function(index) {
-				var prevIndex = index-1;
-				if (prevIndex < 0)
-					prevIndex = this.data.length-1;
-				return prevIndex;
-			},
+		} else {
+			photospace_plugin_options::PS_getOptions();
+		}
 
-			// Pauses the slideshow
-			pause: function() {
-				this.isSlideshowRunning = false;
-				if (this.slideshowTimeout) {
-					clearTimeout(this.slideshowTimeout);
-					this.slideshowTimeout = undefined;
-				}
+		add_menu_page('Photospace options', 'Photospace Gallery Options', 'edit_themes', basename(__FILE__), array('photospace_plugin_options', 'display'));
+	}
+	
 
-				if (this.$controlsContainer) {
-					this.$controlsContainer
-						.find('div.ss-controls a').removeClass().addClass('play')
-						.attr('title', this.playLinkText)
-						.attr('href', '#play')
-						.html(this.playLinkText);
-				}
+	function display() {
+		
+		$options = photospace_plugin_options::PS_getOptions();
+		?>
+		
+		<div class="wrap">
+		
+			<h2>Photospace Options</h2>
+			
+			<form method="post" action="#" enctype="multipart/form-data">				
+
+				<!-- Too buggy			
+				<h3>Change photo on hover?</h3>
+				<p><input name="use_hover" type="checkbox" value="checkbox" <?php if($options['use_hover']) echo "checked='checked'"; ?> /> Yes </p>
+				<br />-->
 				
-				return this;
-			},
+				<div class="wp-menu-separator" style="clear:both; padding-bottom:15px; border-bottom:solid 1px #e6e6e6" ></div>
+				
+				<h3><label><input name="show_download" type="checkbox" value="checkbox" <?php if($options['show_download']) echo "checked='checked'"; ?> /> Show download link</label></h3>			
+				
+				<h3><label><input name="show_controls" type="checkbox" value="checkbox" <?php if($options['show_controls']) echo "checked='checked'"; ?> /> Show controls (play slide show / Next Prev image links)</label></h3>			
+				
+				<h3><label><input name="use_paging" type="checkbox" value="checkbox" <?php if($options['use_paging']) echo "checked='checked'"; ?> /> Use paging </label></h3>			
+				
+				<h3><label><input name="enable_history" type="checkbox" value="checkbox" <?php if($options['enable_history']) echo "checked='checked'"; ?> /> Enable history </label></h3>			
+				
+				
+				<h3><label><input name="show_captions" type="checkbox" value="checkbox" <?php if($options['show_captions']) echo "checked='checked'"; ?> /> Show Title / Caption / Desc under image</label></h3>
+				
+				<h3><label><input name="reset_css" type="checkbox" value="checkbox" <?php if($options['reset_css']) echo "checked='checked'"; ?> /> Try to clear current theme image css / formatting</label></h3>
 
-			// Plays the slideshow
-			play: function() {
-				this.isSlideshowRunning = true;
 
-				if (this.$controlsContainer) {
-					this.$controlsContainer
-						.find('div.ss-controls a').removeClass().addClass('pause')
-						.attr('title', this.pauseLinkText)
-						.attr('href', '#pause')
-						.html(this.pauseLinkText);
+				<h3><label><input name="show_bg" type="checkbox" value="checkbox" <?php if($options['show_bg']) echo "checked='checked'"; ?> /> Show background colours for layout testing</label></h3>
+				
+				
+				
+				<div style="clear:both; padding-bottom:15px; border-bottom:solid 1px #e6e6e6" ></div>
+				
+				<div style="width:25%;float:left;">		
+					<h3><label><input name="auto_play" type="checkbox" value="checkbox" <?php if($options['auto_play']) echo "checked='checked'"; ?> /> Auto play slide show</label></h3>
+				</div>
+				<div style="width:25%;float:left;">		
+					<h3><label><input name="hide_thumbs" type="checkbox" value="checkbox" <?php if($options['hide_thumbs']) echo "checked='checked'"; ?> /> Hide thumbnails</label></h3>
+				</div>
+				<div style="width:25%;float:left;">		
+					<h3>Slide delay in milliseconds</h3>
+					<p><input type="text" name="delay" value="<?php echo($options['delay']); ?>" /></p>
+				</div>
+				
+				<div style="width:25%;float:left;">		
+					<h3>Page button size</h3>
+					<p><input type="text" name="button_size" value="<?php echo($options['button_size']); ?>" /></p>
+				</div>		 			
+
+
+				
+				<div style="clear:both; padding-bottom:15px; border-bottom:solid 1px #e6e6e6" ></div>
+				
+				<h3 style="font-style:italic; font-weight:normal; color:grey " >Images that are already on the server will not change size until you regenerate the thumbnails. Use <a title="http://wordpress.org/extend/plugins/ajax-thumbnail-rebuild/" href="http://wordpress.org/extend/plugins/ajax-thumbnail-rebuild/">AJAX thumbnail rebuild</a> or <a title="http://wordpress.org/extend/plugins/regenerate-thumbnails/" href="http://wordpress.org/extend/plugins/regenerate-thumbnails/">Regenerate Thumbnails</a> </h3>
+
+				<div style="width:25%;float:left;">				
+					<h3>Thumbnail Width</h3>
+					<p><input type="text" name="thumbnail_width" value="<?php echo($options['thumbnail_width']); ?>" /></p>
+				</div>
+				
+				<div style="width:25%; float:left;">				
+					<h3>Thumbnail Height</h3>
+					<p><input type="text" name="thumbnail_height" value="<?php echo($options['thumbnail_height']); ?>" /></p>
+				</div>
+				
+				<div style="width:25%; float:left">
+					<h3>Main image width</h3>
+					<p><input type="text" name="main_col_width" value="<?php echo($options['main_col_width']); ?>" /></p>
+				</div>
+				
+				<div style="width:25%; float:left">
+					<h3>Main image height</h3>
+					<p><input type="text" name="main_col_height" value="<?php echo($options['main_col_height']); ?>" /></p>
+				</div>
+				
+				<div style="width:25%; float:left;">
+					<h3>Crop thumnails</h3>
+					<h3><label><input name="thumbnail_crop" type="checkbox" value="checkbox" <?php if($options['thumbnail_crop']) echo "checked='checked'"; ?> /></label></h3>
+
+				</div>				
+
+				<div style="clear:both; padding-bottom:15px; border-bottom:solid 1px #e6e6e6" ></div>
+				
+				<div style="width:25%;float:left;">		
+					<h3>Number of thumbnails</h3>
+					<p><input type="text" name="num_thumb" value="<?php echo($options['num_thumb']); ?>" /></p>
+				</div>
+					
+				
+				<div style="width:25%; float:left;">				
+					<h3>Thumbnail column width</h3>
+					<p><input type="text" name="thumb_col_width" value="<?php echo($options['thumb_col_width']); ?>" /></p>
+				</div>
+				
+				<div style="width:25%; float:left;">				
+					<h3>Thumbnail margin</h3>
+					<p><input type="text" name="thumbnail_margin" value="<?php echo($options['thumbnail_margin']); ?>" /></p>
+				</div>
+				
+				
+				<div style="clear:both; padding-bottom:15px; border-bottom:solid 1px #e6e6e6" ></div>
+				
+				
+				
+				<h3>Gallery width (at least Thumbnail column + Main image width)</h3>
+				<p><input type="text" name="gallery_width" value="<?php echo($options['gallery_width']); ?>" /></p>
+				<br />
+				
+				<div style="clear:both; padding-bottom:15px; border-bottom:solid 1px #e6e6e6" ></div>
+				
+								
+				<div style="width:25%; float:left;">
+					<h3>Play text</h3>				
+					<p><input type="text" name="play_text" value="<?php echo($options['play_text']); ?>" /></p>
+				</div>
+				
+				<div style="width:25%; float:left;">
+					<h3>Pause text</h3>					
+					<p><input type="text" name="pause_text" value="<?php echo($options['pause_text']); ?>" /></p>
+				</div>
+				
+				<div style="width:25%; float:left;">				
+					<h3>Previous text</h3>	
+					<p><input type="text" name="previous_text" value="<?php echo($options['previous_text']); ?>" /></p>
+				</div>
+
+				<div style="width:25%; float:left;">				
+					<h3>Next text</h3>	
+					<p><input type="text" name="next_text" value="<?php echo($options['next_text']); ?>" /></p>
+				</div>
+				
+				<div style="width:25%; float:left;">				
+					<h3>Download link text</h3>	
+					<p><input type="text" name="download_text" value="<?php echo($options['download_text']); ?>" /></p>
+				</div>
+
+				<div style="clear:both; padding-bottom:15px; border-bottom:solid 1px #e6e6e6" ></div>
+
+			
+				<p><input class="button-primary" type="submit" name="ps_save" value="Save Changes" /></p>
+			
+			</form>
+	
+		</div>
+		
+		<?php
+	}  
+} 
+
+function PS_getOption($option) {
+    global $mytheme;
+    return $mytheme->option[$option];
+}
+
+// register functions
+add_action('admin_menu', array('photospace_plugin_options', 'update'));
+
+$options = get_option('ps_options');
+
+add_theme_support( 'post-thumbnails' );
+add_image_size('photospace_thumbnails', $options['thumbnail_width'], $options['thumbnail_height'], $options['thumbnail_crop']);
+add_image_size('photospace_full', $options['main_col_width'], $options['main_col_height']);
+
+//============================== insert HTML header tag ========================//
+
+function photospace_scripts_method() {
+	wp_enqueue_script('jquery');	
+	$photospace_wp_plugin_path = site_url()."/wp-content/plugins/photospace";	
+	wp_enqueue_style( 'photospace-styles',	$photospace_wp_plugin_path . '/gallery.css');
+	wp_enqueue_script( 'galleriffic', 		$photospace_wp_plugin_path . '/jquery.galleriffic.js');
+}
+add_action('wp_enqueue_scripts', 'photospace_scripts_method');
+
+function photospace_scripts_method_history() {							
+	$photospace_wp_plugin_path = site_url()."/wp-content/plugins/photospace";						  
+	wp_enqueue_script( 'history', 		$photospace_wp_plugin_path . '/jquery.history.js');	
+}
+if ($options['enable_history']) {
+	add_action('wp_enqueue_scripts', 'photospace_scripts_method_history');
+}	
+
+function photospace_wp_headers() {
+	
+	$options = get_option('ps_options');
+	
+	echo "<!--	photospace [ START ] --> \n";
+	
+	echo '<style type="text/css">'; 
+	
+	if($options['reset_css']){ 
+	
+		echo '
+			/* reset */ 
+			.photospace img,
+			.photospace ul.thumbs,
+			.photospace ul.thumbs li,
+			.photospace ul.thumbs li a{
+				padding:0;
+				margin:0;
+				border:none !important;
+				background:none !important;
+				height:auto !important;
+				width:auto !important;
+			}
+			.photospace span{
+				padding:0; 
+				margin:0;
+				border:none !important;
+				background:none !important;
+			}
+			';
+	}
+	
+	if(!empty($options['button_size']))
+		echo '
+			.photospace .thumnail_col a.pageLink {
+				width:'.$options['button_size'] .'px;
+				height:'.$options['button_size'] .'px;
+			}
+		';		
+	
+	if(!empty($options['main_col_width']))
+		echo '	.photospace .gal_content,
+				.photospace .loader,
+				.photospace .slideshow a.advance-link{
+					width:'. $options['main_col_width'] .'px;
 				}
+		';
 
-				if (!this.slideshowTimeout) {
-					var gallery = this;
-					this.slideshowTimeout = setTimeout(function() { gallery.ssAdvance(); }, this.delay);
+	if(!empty($options['gallery_width']))
+		echo '	.photospace{
+					width:'. $options['gallery_width'] .'px;
 				}
-
-				return this;
-			},
-
-			// Toggles the state of the slideshow (playing/paused)
-			toggleSlideshow: function() {
-				if (this.isSlideshowRunning)
-					this.pause();
-				else
-					this.play();
-
-				return this;
-			},
-
-			// Advances the slideshow to the next image and delegates navigation to the
-			// history plugin when history is enabled
-			// enableHistory is true
-			ssAdvance: function() {
-				if (this.isSlideshowRunning)
-					this.next(true);
-
-				return this;
-			},
-
-			// Advances the gallery to the next image.
-			// @param {Boolean} dontPause Specifies whether to pause the slideshow.
-			// @param {Boolean} bypassHistory Specifies whether to delegate navigation to the history plugin when history is enabled.  
-			next: function(dontPause, bypassHistory) {
-				this.gotoIndex(this.getNextIndex(this.currentImage.index), dontPause, bypassHistory);
-				return this;
-			},
-
-			// Navigates to the previous image in the gallery.
-			// @param {Boolean} dontPause Specifies whether to pause the slideshow.
-			// @param {Boolean} bypassHistory Specifies whether to delegate navigation to the history plugin when history is enabled.
-			previous: function(dontPause, bypassHistory) {
-				this.gotoIndex(this.getPrevIndex(this.currentImage.index), dontPause, bypassHistory);
-				return this;
-			},
-
-			// Navigates to the next page in the gallery.
-			// @param {Boolean} dontPause Specifies whether to pause the slideshow.
-			// @param {Boolean} bypassHistory Specifies whether to delegate navigation to the history plugin when history is enabled.
-			nextPage: function(dontPause, bypassHistory) {
-				var page = this.getCurrentPage();
-				var lastPage = this.getNumPages() - 1;
-				if (page < lastPage) {
-					var startIndex = page * this.numThumbs;
-					var nextPage = startIndex + this.numThumbs;
-					this.gotoIndex(nextPage, dontPause, bypassHistory);
+		';
+		
+	if(!empty($options['main_col_height']))
+		echo '	.photospace{
+					height:'. $options['main_col_height'] .'px;
 				}
-
-				return this;
-			},
-
-			// Navigates to the previous page in the gallery.
-			// @param {Boolean} dontPause Specifies whether to pause the slideshow.
-			// @param {Boolean} bypassHistory Specifies whether to delegate navigation to the history plugin when history is enabled.
-			previousPage: function(dontPause, bypassHistory) {
-				var page = this.getCurrentPage();
-				if (page > 0) {
-					var startIndex = page * this.numThumbs;
-					var prevPage = startIndex - this.numThumbs;				
-					this.gotoIndex(prevPage, dontPause, bypassHistory);
+		';
+		
+	if(!empty($options['thumbnail_margin']))
+		echo '	.photospace ul.thumbs li {
+					margin-bottom:'. $options['thumbnail_margin'] .'px !important;
+					margin-right:'. $options['thumbnail_margin'] .'px !important; 
 				}
-				
-				return this;
-			},
-
-			// Navigates to the image at the specified index in the gallery
-			// @param {Integer} index The index of the image in the gallery to display.
-			// @param {Boolean} dontPause Specifies whether to pause the slideshow.
-			// @param {Boolean} bypassHistory Specifies whether to delegate navigation to the history plugin when history is enabled.
-			gotoIndex: function(index, dontPause, bypassHistory) {
-				if (!dontPause)
-					this.pause();
-				
-				if (index < 0) index = 0;
-				else if (index >= this.data.length) index = this.data.length-1;
-				
-				var imageData = this.data[index];
-				
-				if (!bypassHistory && this.enableHistory)
-					$.historyLoad(String(imageData.hash));  // At the moment, historyLoad only accepts string arguments
-				else
-					this.gotoImage(imageData);
-
-				return this;
-			},
-
-			// This function is garaunteed to be called anytime a gallery slide changes.
-			// @param {Object} imageData An object holding the image metadata of the image to navigate to.
-			gotoImage: function(imageData) {
-				var index = imageData.index;
-
-				if (this.onSlideChange)
-					this.onSlideChange(this.currentImage.index, index);
-				
-				this.currentImage = imageData;
-				this.preloadRelocate(index);
-				
-				this.refresh();
-				
-				return this;
-			},
-
-			// Returns the default transition duration value.  The value is halved when not
-			// performing a synchronized transition.
-			// @param {Boolean} isSync Specifies whether the transitions are synchronized.
-			getDefaultTransitionDuration: function(isSync) {
-				if (isSync)
-					return this.defaultTransitionDuration;
-				return this.defaultTransitionDuration / 2;
-			},
-
-			// Rebuilds the slideshow image and controls and performs transitions
-			refresh: function() {
-				var imageData = this.currentImage;
-				if (!imageData)
-					return this;
-
-				var index = imageData.index;
-
-				// Update Controls
-				if (this.$controlsContainer) {
-					this.$controlsContainer
-						.find('div.nav-controls a.prev').attr('href', '#'+this.data[this.getPrevIndex(index)].hash).end()
-						.find('div.nav-controls a.next').attr('href', '#'+this.data[this.getNextIndex(index)].hash);
+		';
+	
+	if(!empty($options['main_col_height']))
+		echo '	.photospace .loader {
+					height: '. $options['main_col_height'] / 2 . 'px;
 				}
-
-				var previousSlide = this.$imageContainer.find('span.current').addClass('previous').removeClass('current');
-				var previousCaption = 0;
-
-				if (this.$captionContainer) {
-					previousCaption = this.$captionContainer.find('span.current').addClass('previous').removeClass('current');
+		';
+		
+	if(!empty($options['main_col_width']))
+		echo '	.photospace .loader {
+					width: '. $options['main_col_width'] . 'px;
 				}
+		';
 
-				// Perform transitions simultaneously if syncTransitions is true and the next image is already preloaded
-				var isSync = this.syncTransitions && imageData.image;
+	if(!empty($options['main_col_height']))
+		echo '	.photospace .slideshow a.advance-link,
+				.photospace .slideshow span.image-wrapper {
+					height:'. $options['main_col_height'] .'px;
+				}
+		';
+		
+	if(!empty($options['main_col_height']))
+		echo '	.photospace .slideshow-container {
+					height:'. $options['main_col_height'] .'px;
+				}
+		';
+			
+	if($options['show_bg']){ 
+	
+		echo '
+			.photospace{
+				background-color:#fbefd7;
+			}
+			
+			.photospace .thumnail_col {
+				background-color:#e7cf9f;
+			}
+			
+			.photospace .gal_content,
+			.photospace .loader,
+			.photospace .slideshow a.advance-link {
+				background-color:#e7cf9f;
+			}'; 
+	}
+	
+	if($options['hide_thumbs']){ 
+		echo '
+			.photospace .thumnail_col{
+				display:none !important;
+			}
+		'; 
+	}
+	if($options['use_paging']){ 
+		echo '
+			.pageLink{
+				display:none !important;
+			}
+			.photospace{
+				margin-top:43px;
+			}
+		'; 
+	}
 
-				// Flag we are transitioning
-				var isTransitioning = true;
-				var gallery = this;
+	echo '</style>'; 
+			
+	echo "<!--	photospace [ END ] --> \n";
+}
+add_action( 'wp_head', 'photospace_wp_headers', 10 );
 
-				var transitionOutCallback = function() {
-					// Flag that the transition has completed
-					isTransitioning = false;
+add_shortcode( 'photospace', 'photospace_shortcode' );
+function photospace_shortcode( $atts ) {
+	
+	global $post;
+	$options = get_option('ps_options');
+	
+	extract(shortcode_atts(array(
+		'id' 				=> intval($post->ID),
+		'num_thumb' 		=> $options['num_thumb'],
+		'num_preload' 		=> $options['num_thumb'],
+		'show_captions' 	=> $options['show_captions'],
+		'show_download' 	=> $options['show_download'],
+		'show_controls' 	=> $options['show_controls'],
+		'auto_play' 		=> $options['auto_play'],
+		'delay' 			=> $options['delay'],
+		'hide_thumbs' 		=> $options['hide_thumbs'],
+		'use_paging' 		=> $options['use_paging'],
+		'horizontal_thumb' 	=> 0,
+		'include'    => '',
+		'exclude'    => '',
+		'sync_transitions' 	=> 1
+		
+	), $atts));
+	
+	$post_id = intval($post->ID);
 
-					// Remove the old slide
-					previousSlide.remove();
+	if($hide_thumbs){
+		$hide_thumb_style = 'hide_me';
+	}
+	
+	$thumb_style_init = 'display:none';
+	$thumb_style_on  = "'display', 'block'";
+	$thumb_style_off  = "'display', 'none'";
 
-					// Remove old caption
-					if (previousCaption)
-						previousCaption.remove();
-
-					if (!isSync) {
-						if (imageData.image && imageData.hash == gallery.data[gallery.currentImage.index].hash) {
-							gallery.buildImage(imageData, isSync);
+	
+	$photospace_wp_plugin_path = site_url()."/wp-content/plugins/photospace";
+	
+	$output_buffer ='
+	
+		<div class="gallery_clear"></div> 
+		<div id="gallery_'.$post_id.'" class="photospace"> 
+	
+			<!-- Start Advanced Gallery Html Containers -->
+			<div class="thumbs_wrap2">
+				<div class="thumbs_wrap">
+					<div id="thumbs_'.$post_id.'" class="thumnail_col '. $hide_thumb_style . '" >
+						';
+						
+						if($horizontal_thumb){ 		
+								$output_buffer .='<a class="pageLink prev" style="'. $thumb_style_init . '" href="#" title="Previous Page"></a>';
+						}
+						
+						$output_buffer .=' 
+						<ul class="thumbs noscript">				
+						';
+													
+						if ( !empty($include) ) { 
+							$include = preg_replace( '/[^0-9,]+/', '', $include );
+							$_attachments = get_posts( array('include' => $include, 'post_status' => 'inherit', 'post_type' => 'attachment', 'post_mime_type' => 'image', 'order' => 'ASC', 'orderby' => 'menu_order') );
+					
+							$attachments = array();
+							foreach ( $_attachments as $key => $val ) {
+								$attachments[$val->ID] = $_attachments[$key];
+							}
+						} elseif ( !empty($exclude) ) {
+							$exclude = preg_replace( '/[^0-9,]+/', '', $exclude );
+							$attachments = get_children( array('post_parent' => $id, 'exclude' => $exclude, 'post_status' => 'inherit', 'post_type' => 'attachment', 'post_mime_type' => 'image', 'order' => 'ASC', 'orderby' => 'menu_order') );
 						} else {
-							// Show loading container
-							if (gallery.$loadingContainer) {
-								gallery.$loadingContainer.show();
+							$attachments = get_children( array('post_parent' => $id, 'post_status' => 'inherit', 'post_type' => 'attachment', 'post_mime_type' => 'image', 'order' => 'ASC', 'orderby' => 'menu_order') );
+						}
+		
+						if ( !empty($attachments) ) {
+							foreach ( $attachments as $aid => $attachment ) {
+								$img = wp_get_attachment_image_src( $aid , 'photospace_full');
+								$thumb = wp_get_attachment_image_src( $aid , 'photospace_thumbnails');
+								$full = wp_get_attachment_image_src( $aid , 'full');
+								$_post = & get_post($aid); 
+		
+								$image_title = attribute_escape($_post->post_title);
+								$image_alttext = get_post_meta($aid, '_wp_attachment_image_alt', true);
+								$image_caption = $_post->post_excerpt;
+								$image_description = $_post->post_content;						
+															
+								$output_buffer .='
+									<li><a class="thumb" href="' . $img[0] . '" title="' . $image_title . '" >								
+											<img src="' . $thumb[0] . '" alt="' . $image_alttext . '" title="' . $image_title . '" />
+										</a>
+										';
+		
+										$output_buffer .='
+										<div class="caption">
+											';
+											if($show_captions){ 	
+												
+												if($image_caption != ''){
+													$output_buffer .='
+														<div class="image-caption">' .  $image_caption . '</div>
+													';
+												}
+												
+												if($image_description != ''){
+													$output_buffer .='
+													<div class="image-desc">' .  $image_description . '</div>
+													';
+												} 
+											}
+											
+											if($show_download){ 		
+												$output_buffer .='
+												<div class="download"><a href="'.$full[0].'" title="'. $options["download_text"] .'" ><span>'. $options["download_text"] .'</span></a></div>
+												';
+											}
+											
+										$output_buffer .='
+										</div>
+										';
+										
+										
+									$output_buffer .='
+									</li>
+								';
+								} 
+							} 
+							
+						$output_buffer .='
+						</ul>';
+		
+						
+						if(!$horizontal_thumb){ 		
+								$output_buffer .='
+								<div class="photospace_clear"></div>
+								<a class="pageLink prev" style="'.$thumb_style_init.'" href="#" title="Previous Page"></a>';
+						}
+						
+						$output_buffer .='
+						<a class="pageLink next" style="'.$thumb_style_init.'" href="#" title="Next Page"></a>
+					</div>
+				</div>
+			</div>
+			
+			<!-- Start Advanced Gallery Html Containers -->
+			<div class="gal_content">
+				';
+				
+				if($show_controls){ 
+					$output_buffer .='<div id="controls_'.$post_id.'" class="controls"></div>';
+				}
+				
+				$output_buffer .='
+				<div class="slideshow-container">
+					<div id="loading_'.$post_id.'" class="loader"></div>
+					<div id="slideshow_'.$post_id.'" class="slideshow"></div>
+					<div id="caption_'.$post_id.'" class="caption-container"></div>
+				</div>
+				
+			</div>
+	
+	</div>
+	
+	<div class="gallery_clear"></div>
+	
+	';
+	
+	$output_buffer .= "
+	
+	<script type='text/javascript'>
+			
+			jQuery(document).ready(function($) {
+				
+				// We only want these styles applied when javascript is enabled
+				$('.gal_content').css('display', 'block');
+				";
+				
+				if(!$horizontal_thumb){
+					$output_buffer .= "$('.thumnail_col').css('width', '". $options['thumb_col_width'] . "px');";
+				}
+				
+				$output_buffer .= "
+				
+				// Initialize Advanced Galleriffic Gallery 
+				var gallery = $('#thumbs_".$post_id."').galleriffic({ 
+					delay:                     " . intval($delay) . ",
+					numThumbs:                 " . intval($num_thumb) . ",
+					preloadAhead:              " . intval($num_preload) . ",
+					enableTopPager:            " . intval($use_paging) . ",
+					enableBottomPager:         false,
+					imageContainerSel:         '#slideshow_".$post_id."',
+					controlsContainerSel:      '#controls_".$post_id."',
+					captionContainerSel:       '#caption_".$post_id."',  
+					loadingContainerSel:       '#loading_".$post_id."',
+					renderSSControls:          true,
+					renderNavControls:         true,
+					playLinkText:              '". $options['play_text'] ."',
+					pauseLinkText:             '". $options['pause_text'] ."',
+					prevLinkText:              '". $options['previous_text'] ."',
+					nextLinkText:              '". $options['next_text'] ."',
+					nextPageLinkText:          '&rsaquo;',
+					prevPageLinkText:          '&lsaquo;',
+					enableHistory:              " . intval($options['enable_history']) . ",
+					autoStart:                 	" . intval($auto_play) . ",
+					enableKeyboardNavigation:	true,
+					syncTransitions:           	" . intval($sync_transitions) . ",
+					defaultTransitionDuration: 	300,
+						
+					onTransitionOut:           function(slide, caption, isSync, callback) {
+						slide.fadeTo(this.getDefaultTransitionDuration(isSync), 0.0, callback);
+						caption.fadeTo(this.getDefaultTransitionDuration(isSync), 0.0);
+					},
+					onTransitionIn:            function(slide, caption, isSync) {
+						var duration = this.getDefaultTransitionDuration(isSync);
+						slide.fadeTo(duration, 1.0);
+	
+						// Position the caption at the bottom of the image and set its opacity
+						var slideImage = slide.find('img');
+						caption.width(slideImage.width())
+							.css({
+								//'bottom' : Math.floor((slide.height() - slideImage.outerHeight()) / 2 - 40),
+								'top' : slideImage.outerHeight(),
+								'left' : Math.floor((slide.width() - slideImage.width()) / 2) + slideImage.outerWidth() - slideImage.width()
+							})
+							.fadeTo(duration, 1.0);
+						
+					},
+					onPageTransitionOut:       function(callback) {
+						this.hide();
+						setTimeout(callback, 100); // wait a bit
+					},
+					onPageTransitionIn:        function() {
+						var prevPageLink = this.find('a.prev').css(".$thumb_style_off.");
+						var nextPageLink = this.find('a.next').css(".$thumb_style_off.");
+						
+						// Show appropriate next / prev page links
+						if (this.displayedPage > 0)
+							prevPageLink.css(".$thumb_style_on.");
+		
+						var lastPage = this.getNumPages() - 1;
+						if (this.displayedPage < lastPage)
+							nextPageLink.css(".$thumb_style_on.");
+		
+						this.fadeTo('fast', 1.0);
+					}
+					
+				}); 
+				
+				";
+				
+				if ($options['enable_history']) {	
+					
+					$output_buffer .= "
+						
+						/**** Functions to support integration of galleriffic with the jquery.history plugin ****/
+		 
+						// PageLoad function
+						// This function is called when:
+						// 1. after calling $.historyInit();
+						// 2. after calling $.historyLoad();
+						// 3. after pushing Go Back button of a browser
+						function pageload(hash) {
+							// alert('pageload: ' + hash);
+							// hash doesn't contain the first # character.
+							if(hash) {
+								$.galleriffic.gotoImage(hash);
+							} else {
+								gallery.gotoIndex(0);
 							}
 						}
-					}
-				};
-
-				if (previousSlide.length == 0) {
-					// For the first slide, the previous slide will be empty, so we will call the callback immediately
-					transitionOutCallback();
-				} else {
-					if (this.onTransitionOut) {
-						this.onTransitionOut(previousSlide, previousCaption, isSync, transitionOutCallback);
-					} else {
-						previousSlide.fadeTo(this.getDefaultTransitionDuration(isSync), 0.0, transitionOutCallback);
-						if (previousCaption)
-							previousCaption.fadeTo(this.getDefaultTransitionDuration(isSync), 0.0);
-					}
+		 
+						// Initialize history plugin.
+						// The callback is called at once by present location.hash. 
+						$.historyInit(pageload, 'advanced.html');
+		 
+						// set onlick event for buttons using the jQuery 1.3 live method
+						$('a[rel=history]').live('click', function(e) {
+							if (e.button != 0) return true;
+							
+							var hash = this.href;
+							hash = hash.replace(/^.*#/, '');
+		 
+							// moves to a new page. 
+							// pageload is called at once.  
+							$.historyLoad(hash);
+		 
+							return false;
+						});
+		 
+						/****************************************************************************************/
+						
+						
+						";
 				}
-
-				// Go ahead and begin transitioning in of next image
-				if (isSync)
-					this.buildImage(imageData, isSync);
-
-				if (!imageData.image) {
-					var image = new Image();
-					
-					// Wire up mainImage onload event
-					image.onload = function() {
-						imageData.image = this;
-
-						// Only build image if the out transition has completed and we are still on the same image hash
-						if (!isTransitioning && imageData.hash == gallery.data[gallery.currentImage.index].hash) {
-							gallery.buildImage(imageData, isSync);
-						}
-					};
-
-					// set alt and src
-					image.alt = imageData.title;
-					image.src = imageData.slideUrl;
-				}
-
-				// This causes the preloader (if still running) to relocate out from the currentIndex
-				this.relocatePreload = true;
-
-				return this.syncThumbs();
-			},
-
-			// Called by the refresh method after the previous image has been transitioned out or at the same time
-			// as the out transition when performing a synchronous transition.
-			// @param {Object} imageData An object holding the image metadata of the image to build.
-			// @param {Boolean} isSync Specifies whether the transitions are synchronized.
-			buildImage: function(imageData, isSync) {
-				var gallery = this;
-				var nextIndex = this.getNextIndex(imageData.index);
 				
-				if(isSync){
-				
-					// Construct new hidden span for the image 
-					var newSlide = this.$imageContainer
-						.append('<span class="image-wrapper current"><a class="advance-link" rel="history" href="#'+this.data[nextIndex].hash+'" title="'+imageData.title+'">&nbsp;</a></span>')
-						.find('span.current').css('opacity', '0');
-					
-				}else{
-				
-					//  *** photospace update - replace append with html to stop multiple images in fast clicks ***
-					var newSlide = this.$imageContainer
-						.html('<span class="image-wrapper current"><a class="advance-link" rel="history" href="#'+this.data[nextIndex].hash+'" title="'+imageData.title+'">&nbsp;</a></span>')
-						.find('span.current').css('opacity', '0');
-
-				}
-					
-				
-				newSlide.find('a')
-					.append(imageData.image)
-					.click(function(e) {
+			if($use_hover){ 		
+		 
+				$output_buffer .= "
+					gallery.find('a.thumb').hover(function(e) {
 						gallery.clickHandler(e, this);
 					});
-				
-				var newCaption = 0;
-				if (this.$captionContainer) {
-					// Construct new hidden caption for the image
-					newCaption = this.$captionContainer
-						.append('<span class="image-caption current"></span>')
-						.find('span.current').css('opacity', '0')
-						.append(imageData.caption);
-				}
-
-				// Hide the loading conatiner
-				if (this.$loadingContainer) {
-					this.$loadingContainer.hide();
-				}
-
-				// Transition in the new image
-				if (this.onTransitionIn) {
-					this.onTransitionIn(newSlide, newCaption, isSync);
-				} else {
-					newSlide.fadeTo(this.getDefaultTransitionDuration(isSync), 1.0);
-					if (newCaption)
-						newCaption.fadeTo(this.getDefaultTransitionDuration(isSync), 1.0);
-				}
-				
-				if (this.isSlideshowRunning) {
-					if (this.slideshowTimeout)
-						clearTimeout(this.slideshowTimeout);
-
-					this.slideshowTimeout = setTimeout(function() { gallery.ssAdvance(); }, this.delay);
-				}
-
-				return this;
-			},
-
-			// Returns the current page index that should be shown for the currentImage
-			getCurrentPage: function() {
-				return Math.floor(this.currentImage.index / this.numThumbs);
-			},
-
-			// Applies the selected class to the current image's corresponding thumbnail.
-			// Also checks if the current page has changed and updates the displayed page of thumbnails if necessary.
-			syncThumbs: function() {
-				var page = this.getCurrentPage();
-				if (page != this.displayedPage)
-					this.updateThumbs();
-
-				// Remove existing selected class and add selected class to new thumb
-				var $thumbs = this.find('ul.thumbs').children();
-				$thumbs.filter('.selected').removeClass('selected');
-				$thumbs.eq(this.currentImage.index).addClass('selected');
-
-				return this;
-			},
-
-			// Performs transitions on the thumbnails container and updates the set of
-			// thumbnails that are to be displayed and the navigation controls.
-			// @param {Delegate} postTransitionOutHandler An optional delegate that is called after
-			// the thumbnails container has transitioned out and before the thumbnails are rebuilt.
-			updateThumbs: function(postTransitionOutHandler) {
-				var gallery = this;
-				var transitionOutCallback = function() {
-					// Call the Post-transition Out Handler
-					if (postTransitionOutHandler)
-						postTransitionOutHandler();
+				";
+		
+			} 
 					
-					gallery.rebuildThumbs();
-
-					// Transition In the thumbsContainer
-					if (gallery.onPageTransitionIn)
-						gallery.onPageTransitionIn();
-					else
-						gallery.show();
-				};
-
-				// Transition Out the thumbsContainer
-				if (this.onPageTransitionOut) {
-					this.onPageTransitionOut(transitionOutCallback);
-				} else {
-					this.hide();
-					transitionOutCallback();
-				}
-
-				return this;
-			},
-
-			// Updates the set of thumbnails that are to be displayed and the navigation controls.
-			rebuildThumbs: function() {
-				var needsPagination = this.data.length > this.numThumbs;
-
-				// Rebuild top pager
-				if (this.enableTopPager) {
-					var $topPager = this.find('div.top');
-					if ($topPager.length == 0)
-						$topPager = this.prepend('<div class="top pagination"></div>').find('div.top');
-					else
-						$topPager.empty();
-
-					if (needsPagination)
-						this.buildPager($topPager);
-				}
-
-				// Rebuild bottom pager
-				if (this.enableBottomPager) {
-					var $bottomPager = this.find('div.bottom');
-					if ($bottomPager.length == 0)
-						$bottomPager = this.append('<div class="bottom pagination"></div>').find('div.bottom');
-					else
-						$bottomPager.empty();
-
-					if (needsPagination)
-						this.buildPager($bottomPager);
-				}
-
-				var page = this.getCurrentPage();
-				var startIndex = page*this.numThumbs;
-				var stopIndex = startIndex+this.numThumbs-1;
-				if (stopIndex >= this.data.length)
-					stopIndex = this.data.length-1;
-
-				// Show/Hide thumbs
-				var $thumbsUl = this.find('ul.thumbs');
-				$thumbsUl.find('li').each(function(i) {
-					var $li = $(this);
-					if (i >= startIndex && i <= stopIndex) {
-						$li.show();
-					} else {
-						$li.hide();
-					}
+				
+			$output_buffer .= "
+				
+				/**************** Event handlers for custom next / prev page links **********************/
+		
+				gallery.find('a.prev').click(function(e) {
+					gallery.previousPage();
+					e.preventDefault();
 				});
-
-				this.displayedPage = page;
-
-				// Remove the noscript class from the thumbs container ul
-				$thumbsUl.removeClass('noscript');
-				
-				return this;
-			},
-
-			// Returns the total number of pages required to display all the thumbnails.
-			getNumPages: function() {
-				return Math.ceil(this.data.length/this.numThumbs);
-			},
-
-			// Rebuilds the pager control in the specified matched element.
-			// @param {jQuery} pager A jQuery element set matching the particular pager to be rebuilt.
-			buildPager: function(pager) {
-				var gallery = this;
-				var numPages = this.getNumPages();
-				var page = this.getCurrentPage();
-				var startIndex = page * this.numThumbs;
-				var pagesRemaining = this.maxPagesToShow - 1;
-				
-				var pageNum = page - Math.floor((this.maxPagesToShow - 1) / 2) + 1;
-				if (pageNum > 0) {
-					var remainingPageCount = numPages - pageNum;
-					if (remainingPageCount < pagesRemaining) {
-						pageNum = pageNum - (pagesRemaining - remainingPageCount);
-					}
-				}
-
-				if (pageNum < 0) {
-					pageNum = 0;
-				}
-
-				// Prev Page Link
-				if (page > 0) {
-					var prevPage = startIndex - this.numThumbs;
-					pager.append('<a rel="history" class="pprev" href="#'+this.data[prevPage].hash+'" title="'+this.prevPageLinkText+'">'+this.prevPageLinkText+'</a>');
-				}
-
-				// Create First Page link if needed
-				if (pageNum > 0) {
-					this.buildPageLink(pager, 0, numPages);
-					if (pageNum > 1)
-						pager.append('<span class="ellipsis">&hellip;</span>');
-					
-					pagesRemaining--;
-				}
-
-				// Page Index Links
-				while (pagesRemaining > 0) {
-					this.buildPageLink(pager, pageNum, numPages);
-					pagesRemaining--;
-					pageNum++;
-				}
-
-				// Create Last Page link if needed
-				if (pageNum < numPages) {
-					var lastPageNum = numPages - 1;
-					if (pageNum < lastPageNum)
-						pager.append('<span class="ellipsis">&hellip;</span>');
-
-					this.buildPageLink(pager, lastPageNum, numPages);
-				}
-
-				// Next Page Link
-				var nextPage = startIndex + this.numThumbs;
-				if (nextPage < this.data.length) {
-					pager.append('<a rel="history" class="pnext" href="#'+this.data[nextPage].hash+'" title="'+this.nextPageLinkText+'">'+this.nextPageLinkText+'</a>');
-				}
-
-				pager.find('a').click(function(e) {
-					gallery.clickHandler(e, this);
+		
+				gallery.find('a.next').click(function(e) {
+					gallery.nextPage(); 
+					e.preventDefault();
 				});
-
-				return this;
-			},
-
-			// Builds a single page link within a pager.  This function is called by buildPager
-			// @param {jQuery} pager A jQuery element set matching the particular pager to be rebuilt.
-			// @param {Integer} pageNum The page number of the page link to build.
-			// @param {Integer} numPages The total number of pages required to display all thumbnails.
-			buildPageLink: function(pager, pageNum, numPages) {
-				var pageLabel = pageNum + 1;
-				var currentPage = this.getCurrentPage();
-				if (pageNum == currentPage)
-					pager.append('<span class="current">'+pageLabel+'</span>');
-				else if (pageNum < numPages) {
-					var imageIndex = pageNum*this.numThumbs;
-					pager.append('<a rel="history" href="#'+this.data[imageIndex].hash+'" title="'+pageLabel+'">'+pageLabel+'</a>');
-				}
-				
-				return this;
-			}
-		});
-
-		// Now initialize the gallery
-		$.extend(this, defaults, settings);
 		
-		// Verify the history plugin is available
-		if (this.enableHistory && !$.historyInit)
-			this.enableHistory = false;
-		
-		// Select containers
-		if (this.imageContainerSel) this.$imageContainer = $(this.imageContainerSel);
-		if (this.captionContainerSel) this.$captionContainer = $(this.captionContainerSel);
-		if (this.loadingContainerSel) this.$loadingContainer = $(this.loadingContainerSel);
-
-		// Initialize the thumbails
-		this.initializeThumbs();
-		
-		if (this.maxPagesToShow < 3)
-			this.maxPagesToShow = 3;
-
-		this.displayedPage = -1;
-		this.currentImage = this.data[0];
-		var gallery = this;
-
-		// Hide the loadingContainer
-		if (this.$loadingContainer)
-			this.$loadingContainer.hide();
-
-		// Setup controls
-		if (this.controlsContainerSel) {
-			this.$controlsContainer = $(this.controlsContainerSel).empty();
-			
-			if (this.renderSSControls) {
-				if (this.autoStart) {
-					this.$controlsContainer
-						.append('<div class="ss-controls"><a href="#pause" class="pause" title="'+this.pauseLinkText+'"><span>'+this.pauseLinkText+'</span></a></div>');
-				} else {
-					this.$controlsContainer
-						.append('<div class="ss-controls"><a href="#play" class="play" title="'+this.playLinkText+'"><span>'+this.playLinkText+'</span></a></div>');
-				}
-
-				this.$controlsContainer.find('div.ss-controls a')
-					.click(function(e) {
-						gallery.toggleSlideshow();
-						e.preventDefault();
-						return false;
-					});
-			}
-		
-			if (this.renderNavControls) {
-				this.$controlsContainer
-					.append('<div class="nav-controls"><a class="prev" rel="history" title="'+this.prevLinkText+'"><span>'+this.prevLinkText+'</span></a><a class="next" rel="history" title="'+this.nextLinkText+'"><span>'+this.nextLinkText+'</span></a></div>')
-					.find('div.nav-controls a')
-					.click(function(e) {
-						gallery.clickHandler(e, this);
-					});
-			}
-		}
-
-		var initFirstImage = !this.enableHistory || !location.hash;
-		if (this.enableHistory && location.hash) {
-			var hash = $.galleriffic.normalizeHash(location.hash);
-			var imageData = allImages[hash];
-			if (!imageData)
-				initFirstImage = true;
-		}
-
-		// Setup gallery to show the first image
-		if (initFirstImage)
-			this.gotoIndex(0, false, true);
-
-		// Setup Keyboard Navigation
-		if (this.enableKeyboardNavigation) {
-			$(document).keydown(function(e) {
-				var key = e.charCode ? e.charCode : e.keyCode ? e.keyCode : 0;
-				switch(key) {
-					case 32: // space
-						gallery.next();
-						//e.preventDefault(); *** photospace - don't break forms *** 
-						break;
-					case 33: // Page Up
-						gallery.previousPage();
-						e.preventDefault();
-						break;
-					case 34: // Page Down
-						gallery.nextPage();
-						e.preventDefault();
-						break;
-					case 35: // End
-						gallery.gotoIndex(gallery.data.length-1);
-						e.preventDefault();
-						break;
-					case 36: // Home
-						gallery.gotoIndex(0);
-						e.preventDefault();
-						break;
-					case 37: // left arrow
-						gallery.previous();
-
-						//e.preventDefault(); *** photospace - don't break forms *** 
-						break;
-					case 39: // right arrow
-						gallery.next();
-						//e.preventDefault(); *** photospace - don't break forms *** 
-						break;
-				}
 			});
-		}
-
-		// Auto start the slideshow
-		if (this.autoStart)
-			this.play();
-
-		// Kickoff Image Preloader after 1 second
-		setTimeout(function() { gallery.preloadInit(); }, 1000);
-
-		return this;
-	};
-})(jQuery);
+		</script>
+		
+		";
+		
+		return $output_buffer;
+}
