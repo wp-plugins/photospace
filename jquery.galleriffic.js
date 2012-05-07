@@ -814,7 +814,7 @@
 				// Prev Page Link
 				if (page > 0) {
 					var prevPage = startIndex - this.numThumbs;
-					pager.append('<a rel="history" href="#'+this.data[prevPage].hash+'" title="'+this.prevPageLinkText+'">'+this.prevPageLinkText+'</a>');
+					pager.append('<a rel="history" class="pprev" href="#'+this.data[prevPage].hash+'" title="'+this.prevPageLinkText+'">'+this.prevPageLinkText+'</a>');
 				}
 
 				// Create First Page link if needed
@@ -845,7 +845,7 @@
 				// Next Page Link
 				var nextPage = startIndex + this.numThumbs;
 				if (nextPage < this.data.length) {
-					pager.append('<a rel="history" href="#'+this.data[nextPage].hash+'" title="'+this.nextPageLinkText+'">'+this.nextPageLinkText+'</a>');
+					pager.append('<a rel="history" class="pnext" href="#'+this.data[nextPage].hash+'" title="'+this.nextPageLinkText+'">'+this.nextPageLinkText+'</a>');
 				}
 
 				pager.find('a').click(function(e) {
