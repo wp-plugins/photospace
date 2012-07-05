@@ -573,7 +573,7 @@ function photospace_shortcode( $atts ) {
 								$full = wp_get_attachment_image_src( $aid , 'full');
 								$_post = & get_post($aid); 
 		
-								$image_title = attribute_escape($_post->post_title);
+								$image_title = esc_attr($_post->post_title);
 								$image_alttext = get_post_meta($aid, '_wp_attachment_image_alt', true);
 								$image_caption = $_post->post_excerpt;
 								$image_description = $_post->post_content;						
