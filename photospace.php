@@ -6,7 +6,7 @@ Description: A image gallery plugin for WordPress built using Galleriffic.
 <a href="http://www.twospy.com/galleriffic/>galleriffic</a>
 Author: Dean Oakley
 Author URI: http://deanoakley.com/
-Version: 2.2.5
+Version: 2.2.6
 */
 
 /*  Copyright 2010  Dean Oakley  (email : contact@deanoakley.com)
@@ -42,9 +42,7 @@ class photospace_plugin_options {
 			$options['enable_history'] = false;
 			
 			$options['num_thumb'] = '9';
-			
-			$options['use_hover'] = false;
-			
+						
 			$options['show_captions'] = false;
 			
 			$options['show_download'] = false;
@@ -146,12 +144,6 @@ class photospace_plugin_options {
 			} else {
 				$options['show_bg'] = (bool)false;
 			} 
-					
-			if ($_POST['use_hover']) {
-				$options['use_hover'] = (bool)true;
-			} else {
-				$options['use_hover'] = (bool)false;
-			}
 			
 			if ($_POST['auto_play']) {
 				$options['auto_play'] = (bool)true;
@@ -197,11 +189,6 @@ class photospace_plugin_options {
 			<h2>Photospace Options</h2>
 			
 			<form method="post" action="#" enctype="multipart/form-data">				
-
-				<!-- Too buggy			
-				<h3>Change photo on hover?</h3>
-				<p><input name="use_hover" type="checkbox" value="checkbox" <?php if($options['use_hover']) echo "checked='checked'"; ?> /> Yes </p>
-				<br />-->
 				
 				<div class="wp-menu-separator" style="clear:both; padding-bottom:15px; border-bottom:solid 1px #e6e6e6" ></div>
 				
@@ -532,7 +519,8 @@ function photospace_shortcode( $atts ) {
 	), $atts));
 	
 	$post_id = intval($post->ID);
-
+	
+	$hide_thumb_style = '';
 	if($hide_thumbs){
 		$hide_thumb_style = 'hide_me';
 	}
@@ -798,16 +786,7 @@ function photospace_shortcode( $atts ) {
 						";
 				}
 				
-			if($use_hover){ 		
-		 
-				$output_buffer .= "
-					gallery.find('a.thumb').hover(function(e) {
-						gallery.clickHandler(e, this);
-					});
-				";
-		
-			} 
-					
+	
 				
 			$output_buffer .= "
 				
