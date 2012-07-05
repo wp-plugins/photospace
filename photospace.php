@@ -6,7 +6,7 @@ Description: A image gallery plugin for WordPress built using Galleriffic.
 <a href="http://www.twospy.com/galleriffic/>galleriffic</a>
 Author: Dean Oakley
 Author URI: http://deanoakley.com/
-Version: 2.2.6
+Version: 2.2.7
 */
 
 /*  Copyright 2010  Dean Oakley  (email : contact@deanoakley.com)
@@ -103,61 +103,61 @@ class photospace_plugin_options {
 			
 			$options['button_size'] = stripslashes($_POST['button_size']);
 
-			if ($_POST['enable_history']) {
+			if (isset($_POST['enable_history'])) {
 				$options['enable_history'] = (bool)true;
 			} else {
 				$options['enable_history'] = (bool)false;
 			} 
 			
-			if ($_POST['use_paging']) {
+			if (isset($_POST['use_paging'])) {
 				$options['use_paging'] = (bool)true;
 			} else {
 				$options['use_paging'] = (bool)false;
 			} 
 			
-			if ($_POST['thumbnail_crop']) {
+			if (isset($_POST['thumbnail_crop'])) {
 				$options['thumbnail_crop'] = (bool)true;
 			} else {
 				$options['thumbnail_crop'] = (bool)false;
 			} 
 			
-			if ($_POST['show_controls']) {
+			if (isset($_POST['show_controls'])) {
 				$options['show_controls'] = (bool)true;
 			} else {
 				$options['show_controls'] = (bool)false;
 			} 
 			
-			if ($_POST['show_download']) {
+			if (isset($_POST['show_download'])) {
 				$options['show_download'] = (bool)true;
 			} else {
 				$options['show_download'] = (bool)false;
 			} 
 			
-			if ($_POST['show_captions']) {
+			if (isset($_POST['show_captions'])) {
 				$options['show_captions'] = (bool)true;
 			} else {
 				$options['show_captions'] = (bool)false;
 			}
 			
-			if ($_POST['show_bg']) {
+			if (isset($_POST['show_bg'])) {
 				$options['show_bg'] = (bool)true;
 			} else {
 				$options['show_bg'] = (bool)false;
 			} 
 			
-			if ($_POST['auto_play']) {
+			if (isset($_POST['auto_play'])) {
 				$options['auto_play'] = (bool)true;
 			} else {
 				$options['auto_play'] = (bool)false;
 			}
 			
-			if ($_POST['hide_thumbs']) {
+			if (isset($_POST['hide_thumbs'])) {
 				$options['hide_thumbs'] = (bool)true;
 			} else {
 				$options['hide_thumbs'] = (bool)false;
 			}
 			
-			if ($_POST['reset_css']) {
+			if (isset($_POST['reset_css'])) {
 				$options['reset_css'] = (bool)true;
 			} else {
 				$options['reset_css'] = (bool)false;
