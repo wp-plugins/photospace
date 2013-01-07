@@ -6,7 +6,7 @@ Description: A image gallery plugin for WordPress built using Galleriffic.
 <a href="http://www.twospy.com/galleriffic/>galleriffic</a>
 Author: Dean Oakley
 Author URI: http://deanoakley.com/
-Version: 2.2.7
+Version: 2.3.0
 */
 
 /*  Copyright 2010  Dean Oakley  (email : contact@deanoakley.com)
@@ -494,11 +494,20 @@ function photospace_wp_headers() {
 }
 add_action( 'wp_head', 'photospace_wp_headers', 10 );
 
+add_shortcode( 'gallery', 'photospace_shortcode' );
 add_shortcode( 'photospace', 'photospace_shortcode' );
+
 function photospace_shortcode( $atts ) {
 	
 	global $post;
 	$options = get_option('ps_options');
+	
+	if ( ! empty( $atts['ids'] ) ) {
+		// 'ids' is explicitly ordered, unless you specify otherwise.
+		if ( empty( $atts['orderby'] ) )
+			$atts['orderby'] = 'post__in';
+		$atts['include'] = $atts['ids'];
+	}
 	
 	extract(shortcode_atts(array(
 		'id' 				=> intval($post->ID),
@@ -512,13 +521,18 @@ function photospace_shortcode( $atts ) {
 		'hide_thumbs' 		=> $options['hide_thumbs'],
 		'use_paging' 		=> $options['use_paging'],
 		'horizontal_thumb' 	=> 0,
+		'order'      => 'ASC',
+		'orderby'    => 'menu_order ID',
 		'include'    => '',
 		'exclude'    => '',
 		'sync_transitions' 	=> 1
-		
+				
 	), $atts));
 	
 	$post_id = intval($post->ID);
+	
+	if ( 'RAND' == $order )
+		$orderby = 'none';
 	
 	$hide_thumb_style = '';
 	if($hide_thumbs){
@@ -553,7 +567,7 @@ function photospace_shortcode( $atts ) {
 													
 						if ( !empty($include) ) { 
 							$include = preg_replace( '/[^0-9,]+/', '', $include );
-							$_attachments = get_posts( array('include' => $include, 'post_status' => 'inherit', 'post_type' => 'attachment', 'post_mime_type' => 'image', 'order' => 'ASC', 'orderby' => 'menu_order') );
+							$_attachments = get_posts( array('include' => $include, 'post_status' => 'inherit', 'post_type' => 'attachment', 'post_mime_type' => 'image', 'order' => $order, 'orderby' => $orderby) );
 					
 							$attachments = array();
 							foreach ( $_attachments as $key => $val ) {
@@ -561,9 +575,9 @@ function photospace_shortcode( $atts ) {
 							}
 						} elseif ( !empty($exclude) ) {
 							$exclude = preg_replace( '/[^0-9,]+/', '', $exclude );
-							$attachments = get_children( array('post_parent' => $id, 'exclude' => $exclude, 'post_status' => 'inherit', 'post_type' => 'attachment', 'post_mime_type' => 'image', 'order' => 'ASC', 'orderby' => 'menu_order') );
+							$attachments = get_children( array('post_parent' => $id, 'exclude' => $exclude, 'post_status' => 'inherit', 'post_type' => 'attachment', 'post_mime_type' => 'image', 'order' => $order, 'orderby' => $orderby) );
 						} else {
-							$attachments = get_children( array('post_parent' => $id, 'post_status' => 'inherit', 'post_type' => 'attachment', 'post_mime_type' => 'image', 'order' => 'ASC', 'orderby' => 'menu_order') );
+							$attachments = get_children( array('post_parent' => $id, 'post_status' => 'inherit', 'post_type' => 'attachment', 'post_mime_type' => 'image', 'order' => $order, 'orderby' => $orderby) );
 						}
 		
 						if ( !empty($attachments) ) {
