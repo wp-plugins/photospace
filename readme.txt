@@ -8,12 +8,11 @@ Requires at least: 3.0
 Tested up to: 3.3.4
 Stable tag: 2.3.0
 
-The Photospace plugin takes advantage of the built in features of WP by automatically adding any images attached to the post or page into the gallery.
+The Photospace plugin takes advantage of the built in features of WP by automatically appying the plugin to the default gallery short code.
 
 == Description ==
 
-Photospace takes advantage of the built in gallery features of WordPress, the plugin automatically adds any images attached to the post or page into the gallery.
-Then simply use the shortcode [photospace] in the post or page content and your done.
+The Photospace plugin takes advantage of the built in features of WP by automatically appying the plugin to the default gallery short code.
 
 The Photospace gallery plugin allows you to:
 
@@ -40,7 +39,7 @@ See a [demo here](http://thriveweb.com.au/blog/wordpress-gallery-plugin-photospa
 1. Upload `/photospace/` to the `/wp-content/plugins/` directory
 2. Activate the plugin through the 'Plugins' menu in WordPress
 3. Upload some photos to the post or page where you want the gallery
-4. Place the shortcode [photospace]  in your content
+4. Use WordPress to build your gallery and insert it in the page content
 
 == Screenshots ==
 
