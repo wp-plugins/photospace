@@ -6,7 +6,7 @@ Description: A image gallery plugin for WordPress built using Galleriffic.
 <a href="http://www.twospy.com/galleriffic/>galleriffic</a>
 Author: Dean Oakley
 Author URI: http://deanoakley.com/
-Version: 2.3.0
+Version: 2.3.0 
 */
 
 /*  Copyright 2010  Dean Oakley  (email : contact@deanoakley.com)
