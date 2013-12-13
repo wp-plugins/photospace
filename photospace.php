@@ -6,7 +6,7 @@ Description: A image gallery plugin for WordPress built using Galleriffic.
 <a href="http://www.twospy.com/galleriffic/>galleriffic</a>
 Author: Dean Oakley
 Author URI: http://deanoakley.com/
-Version: 2.3.0 
+Version: 2.3.1
 */
 
 /*  Copyright 2010  Dean Oakley  (email : contact@deanoakley.com)
@@ -175,7 +175,7 @@ class photospace_plugin_options {
 			photospace_plugin_options::PS_getOptions();
 		}
 
-		add_menu_page('Photospace options', 'Photospace Gallery Options', 'edit_themes', basename(__FILE__), array('photospace_plugin_options', 'display'));
+		add_submenu_page( 'options-general.php', 'Photospace options', 'Photospace Gallery Options', 'edit_themes', basename(__FILE__), array('photospace_plugin_options', 'display'));
 	}
 	
 
@@ -184,7 +184,7 @@ class photospace_plugin_options {
 		$options = photospace_plugin_options::PS_getOptions();
 		?>
 		
-		<div class="wrap">
+		<div id="photospace_admin" class="wrap">
 		
 			<h2>Photospace Options</h2>
 			
@@ -192,39 +192,41 @@ class photospace_plugin_options {
 				
 				<div class="wp-menu-separator" style="clear:both; padding-bottom:15px; border-bottom:solid 1px #e6e6e6" ></div>
 				
-				<h3><label><input name="show_download" type="checkbox" value="checkbox" <?php if($options['show_download']) echo "checked='checked'"; ?> /> Show download link</label></h3>			
+				<p><label><input name="show_download" type="checkbox" value="checkbox" <?php if($options['show_download']) echo "checked='checked'"; ?> /> Show download link</label></p>			
 				
-				<h3><label><input name="show_controls" type="checkbox" value="checkbox" <?php if($options['show_controls']) echo "checked='checked'"; ?> /> Show controls (play slide show / Next Prev image links)</label></h3>			
+				<p><label><input name="show_controls" type="checkbox" value="checkbox" <?php if($options['show_controls']) echo "checked='checked'"; ?> /> Show controls</label></p>			
 				
-				<h3><label><input name="use_paging" type="checkbox" value="checkbox" <?php if($options['use_paging']) echo "checked='checked'"; ?> /> Use paging </label></h3>			
+				<p><label><input name="use_paging" type="checkbox" value="checkbox" <?php if($options['use_paging']) echo "checked='checked'"; ?> /> Use paging </label></p>			
 				
-				<h3><label><input name="enable_history" type="checkbox" value="checkbox" <?php if($options['enable_history']) echo "checked='checked'"; ?> /> Enable history </label></h3>			
+				<p><label><input name="enable_history" type="checkbox" value="checkbox" <?php if($options['enable_history']) echo "checked='checked'"; ?> /> Enable history </label></p>			
 				
 				
-				<h3><label><input name="show_captions" type="checkbox" value="checkbox" <?php if($options['show_captions']) echo "checked='checked'"; ?> /> Show Title / Caption / Desc under image</label></h3>
+				<p><label><input name="show_captions" type="checkbox" value="checkbox" <?php if($options['show_captions']) echo "checked='checked'"; ?> /> Show Title / Caption / Desc under image</label></p>
 				
-				<h3><label><input name="reset_css" type="checkbox" value="checkbox" <?php if($options['reset_css']) echo "checked='checked'"; ?> /> Try to clear current theme image css / formatting</label></h3>
+				<p><label><input name="reset_css" type="checkbox" value="checkbox" <?php if($options['reset_css']) echo "checked='checked'"; ?> /> Try to clear current theme image css / formatting</label></p>
 
 
-				<h3><label><input name="show_bg" type="checkbox" value="checkbox" <?php if($options['show_bg']) echo "checked='checked'"; ?> /> Show background colours for layout testing</label></h3>
+				<p><label><input name="show_bg" type="checkbox" value="checkbox" <?php if($options['show_bg']) echo "checked='checked'"; ?> /> Show background colours for layout testing</label></p>
 				
 				
 				
-				<div style="clear:both; padding-bottom:15px; border-bottom:solid 1px #e6e6e6" ></div>
+				<div class="ps_border" ></div>
 				
-				<div style="width:25%;float:left;">		
-					<h3><label><input name="auto_play" type="checkbox" value="checkbox" <?php if($options['auto_play']) echo "checked='checked'"; ?> /> Auto play slide show</label></h3>
+				<div class="fl_box">		
+					<p><label><input name="auto_play" type="checkbox" value="checkbox" <?php if($options['auto_play']) echo "checked='checked'"; ?> /> Auto play slide show</label></p>
 				</div>
-				<div style="width:25%;float:left;">		
-					<h3><label><input name="hide_thumbs" type="checkbox" value="checkbox" <?php if($options['hide_thumbs']) echo "checked='checked'"; ?> /> Hide thumbnails</label></h3>
+				<div class="fl_box">		
+					<p><label><input name="hide_thumbs" type="checkbox" value="checkbox" <?php if($options['hide_thumbs']) echo "checked='checked'"; ?> /> Hide thumbnails</label></p>
 				</div>
-				<div style="width:25%;float:left;">		
-					<h3>Slide delay in milliseconds</h3>
+
+				
+				<div class="fl_box">		
+					<p>Slide delay in milliseconds</p>
 					<p><input type="text" name="delay" value="<?php echo($options['delay']); ?>" /></p>
 				</div>
 				
-				<div style="width:25%;float:left;">		
-					<h3>Page button size</h3>
+				<div class="fl_box">		
+					<p>Page button size</p>
 					<p><input type="text" name="button_size" value="<?php echo($options['button_size']); ?>" /></p>
 				</div>		 			
 
@@ -234,47 +236,47 @@ class photospace_plugin_options {
 				
 				<h3 style="font-style:italic; font-weight:normal; color:grey " >Images that are already on the server will not change size until you regenerate the thumbnails. Use <a title="http://wordpress.org/extend/plugins/ajax-thumbnail-rebuild/" href="http://wordpress.org/extend/plugins/ajax-thumbnail-rebuild/">AJAX thumbnail rebuild</a> or <a title="http://wordpress.org/extend/plugins/regenerate-thumbnails/" href="http://wordpress.org/extend/plugins/regenerate-thumbnails/">Regenerate Thumbnails</a> </h3>
 
-				<div style="width:25%;float:left;">				
-					<h3>Thumbnail Width</h3>
+				<div class="fl_box">				
+					<p>Thumbnail Width</p>
 					<p><input type="text" name="thumbnail_width" value="<?php echo($options['thumbnail_width']); ?>" /></p>
 				</div>
 				
-				<div style="width:25%; float:left;">				
-					<h3>Thumbnail Height</h3>
+				<div class="fl_box">				
+					<p>Thumbnail Height</p>
 					<p><input type="text" name="thumbnail_height" value="<?php echo($options['thumbnail_height']); ?>" /></p>
 				</div>
 				
-				<div style="width:25%; float:left">
-					<h3>Main image width</h3>
+				<div class="fl_box">
+					<p>Main image width</p>
 					<p><input type="text" name="main_col_width" value="<?php echo($options['main_col_width']); ?>" /></p>
 				</div>
 				
-				<div style="width:25%; float:left">
-					<h3>Main image height</h3>
+				<div class="fl_box">
+					<p>Main image height</p>
 					<p><input type="text" name="main_col_height" value="<?php echo($options['main_col_height']); ?>" /></p>
 				</div>
 				
-				<div style="width:25%; float:left;">
-					<h3>Crop thumnails</h3>
-					<h3><label><input name="thumbnail_crop" type="checkbox" value="checkbox" <?php if($options['thumbnail_crop']) echo "checked='checked'"; ?> /></label></h3>
+				<div class="fl_box">
+					<p>Crop thumnails</p>
+					<p><label><input name="thumbnail_crop" type="checkbox" value="checkbox" <?php if($options['thumbnail_crop']) echo "checked='checked'"; ?> /></label></p>
 
 				</div>				
 
 				<div style="clear:both; padding-bottom:15px; border-bottom:solid 1px #e6e6e6" ></div>
 				
-				<div style="width:25%;float:left;">		
-					<h3>Number of thumbnails</h3>
+				<div class="fl_box">		
+					<p>Number of thumbnails</p>
 					<p><input type="text" name="num_thumb" value="<?php echo($options['num_thumb']); ?>" /></p>
 				</div>
 					
 				
-				<div style="width:25%; float:left;">				
-					<h3>Thumbnail column width</h3>
+				<div class="fl_box">				
+					<p>Thumbnail column width</p>
 					<p><input type="text" name="thumb_col_width" value="<?php echo($options['thumb_col_width']); ?>" /></p>
 				</div>
 				
-				<div style="width:25%; float:left;">				
-					<h3>Thumbnail margin</h3>
+				<div class="fl_box">				
+					<p>Thumbnail margin</p>
 					<p><input type="text" name="thumbnail_margin" value="<?php echo($options['thumbnail_margin']); ?>" /></p>
 				</div>
 				
@@ -290,28 +292,28 @@ class photospace_plugin_options {
 				<div style="clear:both; padding-bottom:15px; border-bottom:solid 1px #e6e6e6" ></div>
 				
 								
-				<div style="width:25%; float:left;">
-					<h3>Play text</h3>				
+				<div class="fl_box">
+					<p>Play text</p>				
 					<p><input type="text" name="play_text" value="<?php echo($options['play_text']); ?>" /></p>
 				</div>
 				
-				<div style="width:25%; float:left;">
-					<h3>Pause text</h3>					
+				<div class="fl_box">
+					<p>Pause text</p>					
 					<p><input type="text" name="pause_text" value="<?php echo($options['pause_text']); ?>" /></p>
 				</div>
 				
-				<div style="width:25%; float:left;">				
-					<h3>Previous text</h3>	
+				<div class="fl_box">				
+					<p>Previous text</p>	
 					<p><input type="text" name="previous_text" value="<?php echo($options['previous_text']); ?>" /></p>
 				</div>
 
-				<div style="width:25%; float:left;">				
-					<h3>Next text</h3>	
+				<div class="fl_box">				
+					<p>Next text</p>	
 					<p><input type="text" name="next_text" value="<?php echo($options['next_text']); ?>" /></p>
 				</div>
 				
-				<div style="width:25%; float:left;">				
-					<h3>Download link text</h3>	
+				<div class="fl_box">				
+					<p>Download link text</p>	
 					<p><input type="text" name="download_text" value="<?php echo($options['download_text']); ?>" /></p>
 				</div>
 
@@ -336,11 +338,19 @@ function PS_getOption($option) {
 // register functions
 add_action('admin_menu', array('photospace_plugin_options', 'update'));
 
+
 $options = get_option('ps_options');
 
 add_theme_support( 'post-thumbnails' );
 add_image_size('photospace_thumbnails', $options['thumbnail_width'], $options['thumbnail_height'], $options['thumbnail_crop']);
 add_image_size('photospace_full', $options['main_col_width'], $options['main_col_height']);
+
+function admin_register_head() {
+    $url = site_url()."/wp-content/plugins/photospace" . '/admin.css';
+    echo "<link rel='stylesheet' type='text/css' href='$url' />\n";
+}
+add_action('admin_head', 'admin_register_head');
+
 
 //============================== insert HTML header tag ========================//
 

@@ -6,7 +6,7 @@ Plugin URI: http://thriveweb.com.au/the-lab/wordpress-gallery-plugin-photospace-
 Tags: gallery, image gallery, website gallery, photoalbum, photogallery, photo, plugin, images, slideshow, short code, jQuery, photospace, Galleriffic, responsive
 Requires at least: 3.0
 Tested up to: 3.5.1
-Stable tag: 2.3.0
+Stable tag: 2.3.1
 
 The Photospace plugin takes advantage of the built in features of WP by automatically appying the plugin to the default gallery short code.
 
@@ -47,6 +47,9 @@ See a [demo here](http://thriveweb.com.au/blog/wordpress-gallery-plugin-photospa
 2. Screenshot Admin Area 
 
 == Changelog ==
+
+= 2.3.1 =
+* Admin update
 
 = 2.3.0 =
 * Added support for new 3.5 gallery system
