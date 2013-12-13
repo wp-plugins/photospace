@@ -48,7 +48,7 @@ See a [demo here](http://thriveweb.com.au/blog/wordpress-gallery-plugin-photospa
 
 == Changelog ==
 
-= 2.3.1 =
+= 2.3.2 =
 * Admin update
 * Moved admin menu under settings
 
