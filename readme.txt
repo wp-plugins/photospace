@@ -50,6 +50,7 @@ See a [demo here](http://thriveweb.com.au/blog/wordpress-gallery-plugin-photospa
 
 = 2.3.1 =
 * Admin update
+* Moved admin menu under settings
 
 = 2.3.0 =
 * Added support for new 3.5 gallery system
