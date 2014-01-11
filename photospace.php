@@ -6,7 +6,7 @@ Description: A image gallery plugin for WordPress built using Galleriffic.
 <a href="http://www.twospy.com/galleriffic/>galleriffic</a>
 Author: Dean Oakley
 Author URI: http://deanoakley.com/
-Version: 2.3.2
+Version: 2.3.3
 */
 
 /*  Copyright 2010  Dean Oakley  (email : contact@deanoakley.com)
@@ -175,7 +175,7 @@ class photospace_plugin_options {
 			photospace_plugin_options::PS_getOptions();
 		}
 
-		add_submenu_page( 'options-general.php', 'Photospace options', 'Photospace Gallery Options', 'edit_themes', basename(__FILE__), array('photospace_plugin_options', 'display'));
+		add_submenu_page( 'options-general.php', 'Photospace options', 'Photospace Gallery Options', 'edit_theme_options', basename(__FILE__), array('photospace_plugin_options', 'display'));
 	}
 	
 
