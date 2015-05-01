@@ -6,7 +6,7 @@ Description: A image gallery plugin for WordPress built using Galleriffic.
 <a href="http://www.twospy.com/galleriffic/>galleriffic</a>
 Author: Dean Oakley
 Author URI: http://deanoakley.com/
-Version: 2.3.4
+Version: 2.3.5
 */
 
 /*  Copyright 2010  Dean Oakley  (email : contact@deanoakley.com)
@@ -32,7 +32,7 @@ if(preg_match('#' . basename(__FILE__) . '#', $_SERVER['PHP_SELF'])) {
 //============================== Photospace options ========================//
 class photospace_plugin_options {
 
-	function PS_getOptions() {
+	public static function PS_getOptions() {
 		$options = get_option('ps_options');
 		
 		if (!is_array($options)) {
@@ -83,7 +83,7 @@ class photospace_plugin_options {
 		return $options;
 	}
 
-	function update() {
+	public static function update() {
 		if(isset($_POST['ps_save'])) {
 			$options = photospace_plugin_options::PS_getOptions();
 			
@@ -179,7 +179,7 @@ class photospace_plugin_options {
 	}
 	
 
-	function display() {
+	public static function display() {
 		
 		$options = photospace_plugin_options::PS_getOptions();
 		?>
@@ -598,7 +598,7 @@ function photospace_shortcode( $atts ) {
 								$img = wp_get_attachment_image_src( $aid , 'photospace_full');
 								$thumb = wp_get_attachment_image_src( $aid , 'photospace_thumbnails');
 								$full = wp_get_attachment_image_src( $aid , 'full');
-								$_post = & get_post($aid); 
+								$_post = get_post($aid); 
 		
 								$image_title = esc_attr($_post->post_title);
 								$image_alttext = get_post_meta($aid, '_wp_attachment_image_alt', true);
